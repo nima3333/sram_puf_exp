@@ -39,18 +39,19 @@ import serial.tools.list_ports
 myports = [tuple(p) for p in list(serial.tools.list_ports.comports())]
 print(myports)
 
-'''
+data = []
 with Serial(port="/dev/cu.usbmodem142201", baudrate=57600, timeout=1, writeTimeout=1, ) as port_serie:
     if port_serie.isOpen():
         ligne = port_serie.readlines()
         ligne = port_serie.readlines()
         print(ligne[0].rstrip().decode())
-        port_serie.write(b'3')
+        port_serie.write(b'5')
 
-        for i in range(3): 
+        for i in range(5): 
             ligne = port_serie.readlines()
             while(not ligne or ligne[0] == b'\x00'):
                 ligne = port_serie.readlines()
-            print(ligne)
+            data.append(ligne)
 
-'''
+np_data = np.array(data)
+np.save("save", np_data)
