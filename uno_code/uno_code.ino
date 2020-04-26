@@ -32,7 +32,7 @@ void loop() {
         if(++compteur == i){
           for (;;);
         }
-        delay(5000);
+        delay(10000);
         digitalWrite(8, HIGH);
       }
     }
