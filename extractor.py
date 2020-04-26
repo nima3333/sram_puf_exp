@@ -36,7 +36,7 @@ print(mem1.shape)
 mem2 = get_serial_matrix(test)
 print(mem2.shape)
 
-'''
+
 import serial.tools.list_ports
 myports = [tuple(p) for p in list(serial.tools.list_ports.comports())]
 print(myports)
@@ -47,9 +47,9 @@ with Serial(port="/dev/cu.usbmodem142201", baudrate=57600, timeout=1, writeTimeo
         ligne = port_serie.readlines()
         ligne = port_serie.readlines()
         print(ligne[0].rstrip().decode())
-        port_serie.write(b'10')
+        port_serie.write(b'5')
 
-        for i in range(10): 
+        for i in range(5): 
             ligne = port_serie.readlines()
             while(not ligne or ligne[0] in [b'\x00', b'\r\n']):
                 ligne = port_serie.readlines()
@@ -57,7 +57,7 @@ with Serial(port="/dev/cu.usbmodem142201", baudrate=57600, timeout=1, writeTimeo
 
 np_data = np.array(data)
 np.save("save", np_data)
-'''
+
 
 a = np.load("save.npy", allow_pickle=True)
 print(a)
@@ -68,11 +68,10 @@ for elem in a:
     new.append(get_serial_matrix(elem))
 
 proba_list = []
-for i in range(2048):
+for i in range(1024):
     a = np.array(new)[:,i]
     counts = np.bincount(a)
     proba_list.append(np.max(counts)/np.sum(counts))
 
 plt.hist(proba_list)
 plt.show()
-
