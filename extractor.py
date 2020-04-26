@@ -47,11 +47,11 @@ with Serial(port="/dev/cu.usbmodem142201", baudrate=57600, timeout=1, writeTimeo
         ligne = port_serie.readlines()
         ligne = port_serie.readlines()
         print(ligne[0].rstrip().decode())
-        port_serie.write(b'5')
+        port_serie.write(b'10')
 
-        for i in range(5): 
+        for i in range(10): 
             ligne = port_serie.readlines()
-            while(not ligne or ligne[0] == b'\x00'):
+            while(not ligne or ligne[0] in [b'\x00', b'\r\n']):
                 ligne = port_serie.readlines()
             data.append(ligne)
 
@@ -60,6 +60,9 @@ np.save("save", np_data)
 '''
 
 a = np.load("save.npy", allow_pickle=True)
+print(a)
+
+
 new = []
 for elem in a:
     new.append(get_serial_matrix(elem))
@@ -72,3 +75,4 @@ for i in range(2048):
 
 plt.hist(proba_list)
 plt.show()
+
