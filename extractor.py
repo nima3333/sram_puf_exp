@@ -1,5 +1,6 @@
 import numpy as np
 from serial import *
+import matplotlib.pyplot as plt
 
 def get_mem_matrix(file):
     mem = np.zeros(2048)
@@ -20,7 +21,7 @@ def get_serial_matrix(serial_txt):
     new_file = [x.rstrip().decode() for x in serial_txt if x != b'\x00']
     assert(new_file[0] == 'BEGINNING')
     memory_size = int(new_file[1])+1
-    mem = np.zeros(memory_size)
+    mem = np.zeros(memory_size, dtype=np.int16)
     i=0
     for line in new_file[2:]:
         elements = line.split(" ")
@@ -29,12 +30,13 @@ def get_serial_matrix(serial_txt):
             i+=1
     return mem
 
-mem1 = get_mem_matrix("/Users/nima/Desktop/1")
+mem1 = get_mem_matrix("1")
 print(mem1.shape)
 
 mem2 = get_serial_matrix(test)
 print(mem2.shape)
 
+'''
 import serial.tools.list_ports
 myports = [tuple(p) for p in list(serial.tools.list_ports.comports())]
 print(myports)
@@ -55,3 +57,18 @@ with Serial(port="/dev/cu.usbmodem142201", baudrate=57600, timeout=1, writeTimeo
 
 np_data = np.array(data)
 np.save("save", np_data)
+'''
+
+a = np.load("save.npy", allow_pickle=True)
+new = []
+for elem in a:
+    new.append(get_serial_matrix(elem))
+
+proba_list = []
+for i in range(2048):
+    a = np.array(new)[:,i]
+    counts = np.bincount(a)
+    proba_list.append(np.max(counts)/np.sum(counts))
+
+plt.hist(proba_list)
+plt.show()
