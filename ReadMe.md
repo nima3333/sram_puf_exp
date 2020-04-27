@@ -1,4 +1,4 @@
 TODO :
-- Test with another atmega chip (Uno, Nano)
+- Test with another atmega chip
 - Clean the python code
 - Schema and doc
