@@ -1,6 +1,7 @@
 import numpy as np
 from serial import *
 import matplotlib.pyplot as plt
+import serial.tools.list_ports
 
 def get_mem_matrix(file):
     mem = np.zeros(2048)
@@ -19,8 +20,7 @@ test = [b'BEGINNING\r\n', b'2047\r\n', b'0 0 0 0 6 1 66 0 93 0 53 1 C4 0 A2 0 \r
 
 def get_serial_matrix(serial_txt):
     new_file = [x.rstrip().decode() for x in serial_txt if x not in [b'\x00', b'\r\n']]
-    print(repr(new_file[0]))
-    assert(new_file[0] in ['BEGINNING', '\x00BEGINNING'])
+    assert('BEGINNING' in new_file[0])
     memory_size = int(new_file[1])+1
     mem = np.zeros(memory_size, dtype=np.int16)
     i=0
@@ -31,19 +31,28 @@ def get_serial_matrix(serial_txt):
             i+=1
     return mem
 
+#Tests
 mem1 = get_mem_matrix("1")
 print(mem1.shape)
 
 mem2 = get_serial_matrix(test)
 print(mem2.shape)
 
-'''
-import serial.tools.list_ports
+#Selection de port
 myports = [tuple(p) for p in list(serial.tools.list_ports.comports())]
-print(myports)
 
+myport = ""
+for port in myports:
+    if port[1]=="Arduino Uno":
+        myport = port[0]
+        break
+
+assert(myport)
+print(f"Port selectionné : {myport}")
+
+'''
 data = []
-with Serial(port="/dev/cu.usbmodem142201", baudrate=57600, timeout=1, writeTimeout=1, ) as port_serie:
+with Serial(port=myport, baudrate=57600, timeout=1, writeTimeout=1, ) as port_serie:
     if port_serie.isOpen():
         ligne = port_serie.readlines()
         ligne = port_serie.readlines()
@@ -61,9 +70,12 @@ np_data = np.array(data)
 np.save("save", np_data)
 '''
 
+#Affichage d'une séquence
+nb_sample = 10
 a = np.load("save.npy", allow_pickle=True)
-print(a[0][-33])
-print(a[1][-33])
+random_examples = np.random.choice(a, nb_sample)
+for sample in random_examples:
+    print(sample[-30])
 
 
 new = []
