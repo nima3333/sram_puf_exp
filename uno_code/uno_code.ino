@@ -27,7 +27,6 @@ void setup() {
   if (Serial.available()){
     i = Serial.parseInt();
     Serial.read();
-    Serial.println(i);
   }
   delay(1000);
   

@@ -20,6 +20,7 @@ test = [b'BEGINNING\r\n', b'2047\r\n', b'0 0 0 0 6 1 66 0 93 0 53 1 C4 0 A2 0 \r
 
 def get_serial_matrix(serial_txt):
     new_file = [x.rstrip().decode() for x in serial_txt if x not in [b'\x00', b'\r\n']]
+    print(new_file[0])
     assert('BEGINNING' in new_file[0])
     memory_size = int(new_file[1])+1
     mem = np.zeros(memory_size, dtype=np.int16)
@@ -50,30 +51,34 @@ for port in myports:
 assert(myport)
 print(f"Port selectionné : {myport}")
 
-'''
+RECUP_DATA = False
+
 data = []
-with Serial(port=myport, baudrate=57600, timeout=1, writeTimeout=1, ) as port_serie:
-    if port_serie.isOpen():
-        ligne = port_serie.readlines()
-        ligne = port_serie.readlines()
-        print(ligne[0].rstrip().decode())
-        port_serie.write(b'5')
-
-        for i in range(5): 
+if RECUP_DATA:
+    with Serial(port=myport, baudrate=57600, timeout=1, writeTimeout=1, ) as port_serie:
+        if port_serie.isOpen():
             ligne = port_serie.readlines()
-            while(not ligne or (ligne[0] in [b'\x00', b'\r\n']) and len(ligne)<2):
-                ligne = port_serie.readlines()
-                print(ligne)
-            data.append(ligne)
+            ligne = port_serie.readlines()
+            print(ligne[0].rstrip().decode())
+            port_serie.write(b'5')
 
-np_data = np.array(data)
-np.save("save", np_data)
-'''
+            for i in range(5): 
+                ligne = port_serie.readlines()
+                while(not ligne or (ligne[0] in [b'\x00', b'\r\n']) and len(ligne)<2):
+                    ligne = port_serie.readlines()
+                    print(ligne)
+                data.append(ligne)
+
+    np_data = np.array(data)
+    np.save("save", np_data)
 
 #Affichage d'une séquence
-nb_sample = 10
+nb_sample = 3
 a = np.load("save.npy", allow_pickle=True)
+print(f"Size : {a.shape}")
+assert(a.shape[0] >= nb_sample)
 random_examples = np.random.choice(a, nb_sample)
+print(f"Size : {random_examples.shape}")
 for sample in random_examples:
     print(sample[-30])
 
