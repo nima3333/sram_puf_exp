@@ -48,7 +48,7 @@ void loop() {
         if(++compteur == i){
           for (;;);
         }
-        delay(4000);
+        delay(3500);
         DAC_control(4095);
       }
     }
