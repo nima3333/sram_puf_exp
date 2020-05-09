@@ -50,7 +50,7 @@ for port in myports:
 assert(myport)
 print(f"Port selectionné : {myport}")
 
-RECUP_DATA = False
+RECUP_DATA = True
 
 data = []
 if RECUP_DATA:
@@ -90,7 +90,7 @@ for elem in a:
 
 
 proba_list = []
-for i in range(1024):
+for i in range(2048):
     a = np.array(new)[:,i]
     counts = np.bincount(a)
     proba_list.append(np.max(counts)/np.sum(counts))
