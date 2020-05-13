@@ -47,6 +47,7 @@ for port in myports:
         myport = port[0]
         break
 
+print(list(serial.tools.list_ports.comports()))
 assert(myport)
 print(f"Port selectionné : {myport}")
 

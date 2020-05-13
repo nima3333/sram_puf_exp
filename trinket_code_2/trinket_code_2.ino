@@ -3,7 +3,7 @@ void setup() {
   Serial.println(F("BEGINNING"));
   Serial.println(1024);
 
-  byte *someArray = (byte *)malloc (1024);
+  byte someArray[1024];
 
   for( int i = 1 ; i <= 1024 ; ++i ){
     Serial.print( someArray[ i ], HEX );
