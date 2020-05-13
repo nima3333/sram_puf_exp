@@ -43,7 +43,7 @@ myports = [tuple(p) for p in list(serial.tools.list_ports.comports())]
 
 myport = ""
 for port in myports:
-    if port[1]=="Arduino Uno":
+    if "Arduino Uno" in port[1]:
         myport = port[0]
         break
 
@@ -90,7 +90,7 @@ for elem in a:
 
 
 proba_list = []
-for i in range(2048):
+for i in range(1024):
     a = np.array(new)[:,i]
     counts = np.bincount(a)
     proba_list.append(np.max(counts)/np.sum(counts))
