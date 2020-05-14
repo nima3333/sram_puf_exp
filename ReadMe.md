@@ -1,4 +1,6 @@
+# SRAM PUF POC for Arduinos
+
 TODO :
-- Test with another atmega chip
 - Clean the python code
 - Schema and doc
+- Test rising time
