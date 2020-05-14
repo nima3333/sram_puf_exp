@@ -62,9 +62,9 @@ if RECUP_DATA:
             ligne = port_serie.readlines()
             ligne = port_serie.readlines()
             print(ligne[0].rstrip().decode())
-            port_serie.write(b'150')
+            port_serie.write(b'250')
 
-            for i in range(150): 
+            for i in range(250): 
                 ligne = port_serie.readlines()
                 while(not ligne or (ligne[0] in [b'\x00', b'\r\n']) and len(ligne)<2):
                     ligne = port_serie.readlines()
