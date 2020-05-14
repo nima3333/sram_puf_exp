@@ -9,9 +9,9 @@ int compteur = 0;
 
 void DAC_control(int value){
   Wire.beginTransmission(MCP4725_ADDR);
-  Wire.write(64);                     // cmd to update the DAC
-  Wire.write(value >> 4);        // the 8 most significant bits...
-  Wire.write((value & 15) << 4); // the 4 least significant bits...
+  Wire.write(64);
+  Wire.write(value >> 4);
+  Wire.write((value & 15) << 4);
   Wire.endTransmission();
 }
 
