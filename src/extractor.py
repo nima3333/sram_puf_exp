@@ -2,6 +2,7 @@ import numpy as np
 from serial import *
 import matplotlib.pyplot as plt
 import serial.tools.list_ports
+import time
 
 def get_mem_matrix(file: str) -> np.ndarray:
     """[Depreciated] Convert a serial transmission log into a matrix of bytes
@@ -58,7 +59,7 @@ mem2 = get_serial_matrix(test)
 print(mem2.shape)
 
 #TODO: dans une fonction ?
-#Selection de port
+"""#Selection de port
 myports = [tuple(p) for p in list(serial.tools.list_ports.comports())]
 
 myport = ""
@@ -69,7 +70,7 @@ for port in myports:
 
 print(list(serial.tools.list_ports.comports()))
 assert(myport)
-print(f"Port selectionné : {myport}")
+print(f"Port selectionné : {myport}")"""
 
 #TODO: fonction
 RECUP_DATA = False
@@ -129,12 +130,36 @@ def get_proba_array(binary_array):
     binary_array = np.array(binary_array)
     length = find_square(binary_array.shape[1])
     proba_list = []
+    time_array = []
+    timing = time.time()
     for i in range(length):
         a = np.array(binary_array)[:,i]
         counts = np.bincount(a)
         proba_list.append(np.max(counts)/np.sum(counts))
     proba_list = np.array(proba_list)
     return proba_list, length
+
+def test(binary_array):
+    binary_array = np.array(binary_array)
+    length = find_square(binary_array.shape[1])
+
+    B = np.apply_along_axis(np.bincount, axis=0, arr=binary_array[:length,])
+    print(B, B.shape)
+    print(np.bincount(np.array(binary_array)[:,3]))
+    pass
+
+def bincount_columns(x, minlength=None):
+    nbins = x.max() + 1
+    if minlength is not None:
+        nbins = max(nbins, minlength)
+    ncols = x.shape[1]
+    count = np.zeros((nbins, ncols), dtype=int)
+    colidx = np.arange(ncols)[None, :]
+    np.add.at(count, (x, colidx), 1)
+    print(count)
+
+bincount_columns(binary_array)
+quit()
 
 prob, length = get_proba_array(binary_array)
 print(prob.shape)
