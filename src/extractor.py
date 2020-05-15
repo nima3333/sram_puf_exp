@@ -71,6 +71,7 @@ print(list(serial.tools.list_ports.comports()))
 assert(myport)
 print(f"Port selectionné : {myport}")
 
+#TODO: fonction
 RECUP_DATA = False
 
 data = []
@@ -94,6 +95,7 @@ if RECUP_DATA:
     np_data = np.array(data)
     np.save("save", np_data)
 
+#TODO: fonction
 nb_sample = 10
 a = np.load("save.npy", allow_pickle=True)
 print(f"Size : {a.shape}")
@@ -110,24 +112,57 @@ for elem in a:
 
 binary_array = []
 for elem in new:
-    
+    to_add = []
+    for item in elem:
+        to_add += list(map(lambda x: int(x), '{0:08b}'.format(item)))
+    binary_array.append(to_add)
 
 
-proba_list = []
-for i in range(1024):
-    a = np.array(new)[:,i]
-    counts = np.bincount(a)
-    proba_list.append(np.max(counts)/np.sum(counts))
-proba_list = np.array(proba_list)
 
+binary_array = np.array(binary_array)
 
+def find_square(index):
+    return int(np.power(np.floor(np.sqrt(index)), 2))
+
+#TODO PRIO : Calcul indécemment long pour un pc moderne
+def get_proba_array(binary_array):
+    binary_array = np.array(binary_array)
+    length = find_square(binary_array.shape[1])
+    proba_list = []
+    for i in range(length):
+        a = np.array(binary_array)[:,i]
+        counts = np.bincount(a)
+        proba_list.append(np.max(counts)/np.sum(counts))
+    proba_list = np.array(proba_list)
+    return proba_list, length
+
+prob, length = get_proba_array(binary_array)
+print(prob.shape)
+
+def get_displayed_matrix(prob, binary, length):
+    array = []
+    binary_transpose = binary.T
+    for proba, value in zip(prob, binary_transpose):
+        if proba == 1.0 and value[0] == 0:
+            array.append(0)
+        elif proba == 1.0 and value[0] == 1:
+            array.append(1)
+        else:
+            array.append(2)
+    return np.array(array)
+
+arr = get_displayed_matrix(prob, binary_array, length)
+
+print(prob[330:500], arr[330:500])
 
 from matplotlib import colors
 
-cmap = colors.ListedColormap(['white', 'red', "blue"])
-bounds=[0,0.9,0.999999,10]
+cmap = colors.ListedColormap(['green', 'yellow', "white"])
+bounds=[0,0.5,1.5,3]
 norm = colors.BoundaryNorm(bounds, cmap.N)
 
-plt.matshow(proba_list.reshape((32,32)), cmap=cmap, norm=norm)
+plt.figure()
 
-plt.show()
+plt.matshow(arr.reshape((90,90)), cmap=cmap, norm=norm)
+ax = plt.gca()
+ax.grid(which='minor', color='black', linestyle='-', linewidth=1)
