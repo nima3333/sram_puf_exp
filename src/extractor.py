@@ -1,8 +1,10 @@
 import numpy as np
 from serial import *
 import matplotlib.pyplot as plt
+from matplotlib import colors
 import serial.tools.list_ports
 import time
+from typing import Tuple
 
 def get_mem_matrix(file: str) -> np.ndarray:
     """[Depreciated] Convert a serial transmission log into a matrix of bytes
@@ -58,35 +60,45 @@ print(mem1.shape)
 mem2 = get_serial_matrix(test)
 print(mem2.shape)
 
-#TODO: dans une fonction ?
-"""#Selection de port
-myports = [tuple(p) for p in list(serial.tools.list_ports.comports())]
+def get_serial_port() -> str:
+    """Get the serial port associated to the Arduino Uno (to adapt if not an uno)
 
-myport = ""
-for port in myports:
-    if "Arduino Uno" in port[1]:
-        myport = port[0]
-        break
+    :return: port name
+    :rtype: str
+    """
+    myports = [tuple(p) for p in list(serial.tools.list_ports.comports())]
+    myport = ""
+    for port in myports:
+        if "Arduino Uno" in port[1]:
+            myport = port[0]
+            break
+    assert(myport)
+    print(f"Port selectionné : {myport}")
+    return myport
 
-print(list(serial.tools.list_ports.comports()))
-assert(myport)
-print(f"Port selectionné : {myport}")"""
+def sram_read(filename : str = "save", port : str = None, rounds : int = 250) -> None:
+    """Get [rounds] dump of a part of the SRAM of the arduino
 
-#TODO: fonction
-RECUP_DATA = False
-
-data = []
-if RECUP_DATA:
+    :param filename: name of the save, defaults to "save"
+    :type filename: str, optional
+    :param port: serial port, defaults to None
+    :type port: str, optional
+    :param rounds: number of sram dump, defaults to 250
+    :type rounds: int, optional
+    """
+#TODO: a tester
+    data = []
+    if port is None:
+        myport = get_serial_port()
     with Serial(port=myport, baudrate=57600, timeout=0.5, writeTimeout=1, ) as port_serie:
         if port_serie.isOpen():
             ligne = port_serie.readlines()
             ligne = port_serie.readlines()
             ligne = port_serie.readlines()
             ligne = port_serie.readlines()
-            print(ligne[0].rstrip().decode())
-            port_serie.write(b'250')
+            port_serie.write(str(rounds).encode())
 
-            for i in range(250): 
+            for i in range(rounds): 
                 ligne = port_serie.readlines()
                 while(not ligne or (ligne[0] in [b'\x00', b'\r\n']) and len(ligne)<2):
                     ligne = port_serie.readlines()
@@ -94,77 +106,75 @@ if RECUP_DATA:
                 data.append(ligne)
 
     np_data = np.array(data)
-    np.save("save", np_data)
-
-#TODO: fonction
-nb_sample = 10
-a = np.load("save.npy", allow_pickle=True)
-print(f"Size : {a.shape}")
-assert(a.shape[0] >= nb_sample)
-random_examples = np.random.choice(a, nb_sample)
-print(f"Size : {random_examples.shape}")
-for sample in random_examples:
-    print(sample[-30])
+    np.save(filename, np_data)
 
 
-new = []
-for elem in a:
-    new.append(get_serial_matrix(elem))
+def get_arrays_from_save(a : np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+    """Transform the saved npy file, already loaded, to 2 arrays of the dump sram values
+    The hexa array is a int array with values of bytes
+    The binary array, 8 times bigger, is a int array with the bit values
 
-binary_array = []
-for elem in new:
-    to_add = []
-    for item in elem:
-        to_add += list(map(lambda x: int(x), '{0:08b}'.format(item)))
-    binary_array.append(to_add)
+    :param a: already loaded npy file
+    :type a: np.ndarray
+    :return: "hexa" and binary array
+    :rtype: Tuple[np.ndarray, np.ndarray]
+    """
+
+    new = []
+    for elem in a:
+        new.append(get_serial_matrix(elem))
+    hexa_array = np.array(elem)
+    binary_array = []
+    for elem in new:
+        to_add = []
+        for item in elem:
+            to_add += list(map(lambda x: int(x), '{0:08b}'.format(item)))
+        binary_array.append(to_add)
+    binary_array = np.array(binary_array)
+    return hexa_array, binary_array
 
 
+def find_square(index: int) -> int:
+    """Find the bigger dimension to have a perfect square (for visualisation)
 
-binary_array = np.array(binary_array)
+    :param index: array length
+    :type index: int
+    :return: new array length, smaller
+    :rtype: int
+    """
 
-def find_square(index):
     return int(np.power(np.floor(np.sqrt(index)), 2))
 
-#TODO PRIO : Calcul indécemment long pour un pc moderne
-def get_proba_array(binary_array):
-    binary_array = np.array(binary_array)
-    length = find_square(binary_array.shape[1])
-    proba_list = []
-    time_array = []
-    timing = time.time()
-    for i in range(length):
-        a = np.array(binary_array)[:,i]
-        counts = np.bincount(a)
-        proba_list.append(np.max(counts)/np.sum(counts))
-    proba_list = np.array(proba_list)
-    return proba_list, length
+def get_proba_array(x: np.ndarray) -> np.ndarray:
+    """Given an array, compute the max probability of each element keeping the same value
 
-def test(binary_array):
-    binary_array = np.array(binary_array)
-    length = find_square(binary_array.shape[1])
+    :param x: array of observations
+    :type x: np.ndarray
+    :return: array of probabilities
+    :rtype: np.ndarray
+    """
 
-    B = np.apply_along_axis(np.bincount, axis=0, arr=binary_array[:length,])
-    print(B, B.shape)
-    print(np.bincount(np.array(binary_array)[:,3]))
-    pass
-
-def bincount_columns(x, minlength=None):
+    length = find_square(x.shape[1])
     nbins = x.max() + 1
-    if minlength is not None:
-        nbins = max(nbins, minlength)
-    ncols = x.shape[1]
+    ncols = length
     count = np.zeros((nbins, ncols), dtype=int)
     colidx = np.arange(ncols)[None, :]
-    np.add.at(count, (x, colidx), 1)
-    print(count)
+    np.add.at(count, (x[:,:length], colidx), 1)
+    return np.maximum(count[0], count[1])/(count[0] + count[1]), length
 
-bincount_columns(binary_array)
-quit()
 
-prob, length = get_proba_array(binary_array)
-print(prob.shape)
+def get_displayed_array(prob: np.ndarray, binary: np.ndarray, length: int) -> np.ndarray:
+    """Transform the probabilities array into an array suited for visualization with fixed values for constant values of bits
 
-def get_displayed_matrix(prob, binary, length):
+    :param prob: probability array
+    :type prob: np.ndarray
+    :param binary: binary array
+    :type binary: np.ndarray
+    :param length: length given by find_square
+    :type length: int
+    :return: display suited array
+    :rtype: np.ndarray
+    """
     array = []
     binary_transpose = binary.T
     for proba, value in zip(prob, binary_transpose):
@@ -176,18 +186,35 @@ def get_displayed_matrix(prob, binary, length):
             array.append(2)
     return np.array(array)
 
-arr = get_displayed_matrix(prob, binary_array, length)
+def display_array(display_array: np.ndarray) -> None:
+    """Nice display
 
-print(prob[330:500], arr[330:500])
+    :param display_array: display array previously generated
+    :type display_array: np.ndarray
+    """
 
-from matplotlib import colors
+    #Custom colormap
+    cmap = colors.ListedColormap(['green', 'yellow', "white"])
+    bounds=[0,0.5,1.5,3]
+    norm = colors.BoundaryNorm(bounds, cmap.N)
 
-cmap = colors.ListedColormap(['green', 'yellow', "white"])
-bounds=[0,0.5,1.5,3]
-norm = colors.BoundaryNorm(bounds, cmap.N)
+    """Old version
+    plt.matshow(arr.reshape((90,90)), cmap=cmap, norm=norm)
+    ax = plt.gca()
+    ax.grid(color='b', linestyle='-', linewidth=1)
+    plt.show()"""
 
-plt.figure()
+    plt.rcParams["figure.figsize"] = (10,10)
+    plt.pcolormesh(display_array.reshape((90,90)), edgecolors='k', linewidth=1, cmap=cmap, norm=norm)
+    plt.axis('off')
+    ax = plt.gca()
+    ax.invert_yaxis()
+    ax.set_aspect('equal')
+    plt.show()
 
-plt.matshow(arr.reshape((90,90)), cmap=cmap, norm=norm)
-ax = plt.gca()
-ax.grid(which='minor', color='black', linestyle='-', linewidth=1)
+if __name__ == "__main__":
+    a = np.load("save.npy", allow_pickle=True)
+    _, binary_array = get_arrays_from_save(a)
+    prob, length = get_proba_array(binary_array)
+    disp_array = get_displayed_array(prob, binary_array, length)
+    display_array(disp_array)
