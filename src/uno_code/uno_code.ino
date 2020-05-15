@@ -15,6 +15,13 @@ void DAC_control(int value){
   Wire.endTransmission();
 }
 
+void DAC_rise(int divide){
+  TODO: measure with oscilloscope rising time
+  for(int i=0; i<4096; i++){
+    DAC_control(i)
+  }
+}
+
 void setup() {
   Serial.begin(57600);
   Wire.begin();

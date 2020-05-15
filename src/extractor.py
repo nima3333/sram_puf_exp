@@ -51,7 +51,7 @@ def get_serial_matrix(serial_txt: str) -> np.ndarray:
 
 #TODO: unit tests
 #Tests
-mem1 = get_mem_matrix("1")
+mem1 = get_mem_matrix("./src/1")
 print(mem1.shape)
 
 mem2 = get_serial_matrix(test)
@@ -71,7 +71,7 @@ print(list(serial.tools.list_ports.comports()))
 assert(myport)
 print(f"Port selectionné : {myport}")
 
-RECUP_DATA = True
+RECUP_DATA = False
 
 data = []
 if RECUP_DATA:
@@ -108,6 +108,9 @@ new = []
 for elem in a:
     new.append(get_serial_matrix(elem))
 
+binary_array = []
+for elem in new:
+    
 
 
 proba_list = []
@@ -115,7 +118,16 @@ for i in range(1024):
     a = np.array(new)[:,i]
     counts = np.bincount(a)
     proba_list.append(np.max(counts)/np.sum(counts))
+proba_list = np.array(proba_list)
 
 
-plt.hist(proba_list, 100)
+
+from matplotlib import colors
+
+cmap = colors.ListedColormap(['white', 'red', "blue"])
+bounds=[0,0.9,0.999999,10]
+norm = colors.BoundaryNorm(bounds, cmap.N)
+
+plt.matshow(proba_list.reshape((32,32)), cmap=cmap, norm=norm)
+
 plt.show()
