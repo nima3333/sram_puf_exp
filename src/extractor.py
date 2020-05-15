@@ -200,6 +200,8 @@ def display_array(display_array: np.ndarray) -> None:
     ax = plt.gca()
     ax.invert_yaxis()
     ax.set_aspect('equal')
+    plt.box(False)
+    plt.savefig('save.png')
     plt.show()
 
 if __name__ == "__main__":
