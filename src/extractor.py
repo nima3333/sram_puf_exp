@@ -75,7 +75,7 @@ def sram_read(filename : str = "save", port : str = None, rounds : int = 250) ->
     :param rounds: number of sram dump, defaults to 250
     :type rounds: int, optional
     """
-    #TODO: a tester
+
     data = []
     if port is None:
         myport = get_serial_port()
@@ -203,6 +203,7 @@ def display_array(display_array: np.ndarray) -> None:
     plt.show()
 
 if __name__ == "__main__":
+
     a = np.load("save.npy", allow_pickle=True)
     _, binary_array = get_arrays_from_save(a)
     prob, length = get_proba_array(binary_array)
