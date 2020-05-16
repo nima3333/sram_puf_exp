@@ -176,7 +176,7 @@ def get_displayed_array(prob: np.ndarray, binary: np.ndarray, length: int) -> np
             array.append(2)
     return np.array(array)
 
-def display_array(display_array: np.ndarray) -> None:
+def display_array(display_array: np.ndarray, name: str) -> None:
     """Nice display
 
     :param display_array: display array previously generated
@@ -201,20 +201,24 @@ def display_array(display_array: np.ndarray) -> None:
     ax.invert_yaxis()
     ax.set_aspect('equal')
     plt.box(False)
-    plt.savefig('save.png')
+    plt.savefig(f'{name}.png')
     plt.show()
 
 if __name__ == "__main__":
-    sram_read(filename="test_four", rounds=20)
-"""    a = np.load("save.npy", allow_pickle=True)
-    b = np.load("save2.npy", allow_pickle=True)
+    #sram_read(filename="test_four", rounds=20)
+    a = np.load("test_same_1.npy", allow_pickle=True)
+    b = np.load("test_four.npy", allow_pickle=True)
     print(np.array_equal(a,b))
     _, binary_array = get_arrays_from_save(a)
     prob, length = get_proba_array(binary_array)
     disp_array = get_displayed_array(prob, binary_array, length)
-    _, binary_array2 = get_arrays_from_save(a)
+    _, binary_array2 = get_arrays_from_save(b)
     print(np.array_equal(binary_array,binary_array2))
     prob2, length = get_proba_array(binary_array2)
     print(np.array_equal(prob,prob2))
     disp_array2 = get_displayed_array(prob2, binary_array2, length)
-    print(np.array_equal(disp_array,disp_array2))"""
+    print(np.array_equal(disp_array,disp_array2))
+
+    print(np.count_nonzero(disp_array==disp_array2))
+    from scipy.spatial import *
+    print(distance.hamming(disp_array, disp_array2)*disp_array.shape[0])
