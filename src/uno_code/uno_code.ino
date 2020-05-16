@@ -16,9 +16,9 @@ void DAC_control(int value){
 }
 
 void DAC_rise(int divide){
-  TODO: measure with oscilloscope rising time
+  //TODO: measure with oscilloscope rising time
   for(int i=0; i<4096; i++){
-    DAC_control(i)
+    DAC_control(i);
   }
 }
 
@@ -55,7 +55,7 @@ void loop() {
         if(++compteur == i){
           for (;;);
         }
-        delay(3500);
+        delay(3000);
         DAC_control(4095);
       }
     }

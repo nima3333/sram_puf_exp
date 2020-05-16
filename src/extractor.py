@@ -205,9 +205,16 @@ def display_array(display_array: np.ndarray) -> None:
     plt.show()
 
 if __name__ == "__main__":
-
-    a = np.load("save.npy", allow_pickle=True)
+    sram_read(filename="test_same_1", rounds=100)
+"""    a = np.load("save.npy", allow_pickle=True)
+    b = np.load("save2.npy", allow_pickle=True)
+    print(np.array_equal(a,b))
     _, binary_array = get_arrays_from_save(a)
     prob, length = get_proba_array(binary_array)
     disp_array = get_displayed_array(prob, binary_array, length)
-    display_array(disp_array)
+    _, binary_array2 = get_arrays_from_save(a)
+    print(np.array_equal(binary_array,binary_array2))
+    prob2, length = get_proba_array(binary_array2)
+    print(np.array_equal(prob,prob2))
+    disp_array2 = get_displayed_array(prob2, binary_array2, length)
+    print(np.array_equal(disp_array,disp_array2))"""
