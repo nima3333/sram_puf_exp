@@ -205,8 +205,8 @@ def display_array(display_array: np.ndarray, name: str) -> None:
     plt.show()
 
 if __name__ == "__main__":
-    #sram_read(filename="test_four", rounds=20)
-    a = np.load("test_same_1.npy", allow_pickle=True)
+    sram_read(filename="test_other", rounds=250)
+    """a = np.load("test_same_1.npy", allow_pickle=True)
     b = np.load("test_four.npy", allow_pickle=True)
     print(np.array_equal(a,b))
     _, binary_array = get_arrays_from_save(a)
@@ -221,4 +221,4 @@ if __name__ == "__main__":
 
     print(np.count_nonzero(disp_array==disp_array2))
     from scipy.spatial import *
-    print(distance.hamming(disp_array, disp_array2)*disp_array.shape[0])
+    print(distance.hamming(disp_array, disp_array2)*disp_array.shape[0])"""
