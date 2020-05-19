@@ -7,6 +7,8 @@ import serial.tools.list_ports
 import time
 from typing import Tuple
 from scipy.spatial import *
+from PIL import Image
+import io
 
 def get_mem_matrix(file: str) -> np.ndarray:
     """[Depreciated] Convert a serial transmission log into a matrix of bytes
@@ -195,46 +197,34 @@ def display_array(display_array: np.ndarray, name: str, display : bool = False) 
     ax = plt.gca()
     ax.grid(color='b', linestyle='-', linewidth=1)
     plt.show()"""
-
-    plt.rcParams["figure.figsize"] = (10,10)
+    fig = plt.figure(figsize=(10,10))
     plt.pcolormesh(display_array.reshape((90,90)), edgecolors='k', linewidth=1, cmap=cmap, norm=norm)
     plt.axis('off')
     ax = plt.gca()
     ax.invert_yaxis()
     ax.set_aspect('equal')
     plt.box(False)
-    plt.savefig(f'{name}.png')
+    plt.title(name)
+    plt.savefig(name, dpi=plt.gcf().dpi, bbox_inches = 'tight', pad_inches=0.4)
     if display:
         plt.show()
 
-def compare_arrays(display_array: np.ndarray, display_array2: np.ndarray, name: str, display : bool = False) -> None:
-    """Nice display
+def compare_arrays(display_array1: np.ndarray, display_array2: np.ndarray, name: str, display : bool = False) -> None:
 
-    :param display_array: display array previously generated
-    :type display_array: np.ndarray
-    """
-
-    #Custom colormap
-    cmap = colors.ListedColormap(['green', 'yellow', "white"])
-    bounds=[0,0.5,1.5,3]
-    norm = colors.BoundaryNorm(bounds, cmap.N)
-
-    fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(8, 4))
-    fig.tight_layout()
-
-    ax1.pcolormesh(display_array.reshape((90,90)), edgecolors='k', linewidth=0.5, cmap=cmap, norm=norm)
-    ax1.invert_yaxis()
-    ax1.axis("off")
-    #ax1.set_aspect('equal')
-
-    ax2.pcolormesh(display_array2.reshape((90,90)), edgecolors='k', linewidth=0.5, cmap=cmap, norm=norm)
-    ax2.invert_yaxis()
-    ax2.axis("off")
-    #ax2.set_aspect('equal')
-
-    plt.savefig(f'{name}.png', dpi=plt.gcf().dpi, bbox_inches = 'tight', pad_inches=0)
-    if display:
-        plt.show()
+    buf1 = io.BytesIO()
+    buf2 = io.BytesIO()
+    display_array(display_array1, buf1, False)
+    display_array(display_array2, buf2, False)
+    buf1.seek(0)
+    buf2.seek(0)
+    im1 = Image.open(buf1)
+    im2 = Image.open(buf2)
+    dst = Image.new('RGB', (im1.width + im2.width, im1.height))
+    dst.paste(im1, (0, 0))
+    dst.paste(im2, (im1.width, 0))
+    dst.save(f'{name}.png')
+    buf1.close()
+    buf2.close()
 
 if __name__ == "__main__":
     #sram_read(filename="test_other", rounds=250)
@@ -250,6 +240,6 @@ if __name__ == "__main__":
     print(np.array_equal(prob,prob2))
     disp_array2 = get_displayed_array(prob2, binary_array2, length)
     print(np.array_equal(disp_array,disp_array2))
-    compare_arrays(disp_array, disp_array2, "Test2", True)
+    compare_arrays(disp_array, disp_array2, "concat", True)
     print(np.count_nonzero(disp_array==disp_array2))
     print(distance.hamming(disp_array, disp_array2)*disp_array.shape[0])
