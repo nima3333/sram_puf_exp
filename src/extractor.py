@@ -2,9 +2,11 @@ import numpy as np
 from serial import *
 import matplotlib.pyplot as plt
 from matplotlib import colors
+import matplotlib as mlp
 import serial.tools.list_ports
 import time
 from typing import Tuple
+from scipy.spatial import *
 
 def get_mem_matrix(file: str) -> np.ndarray:
     """[Depreciated] Convert a serial transmission log into a matrix of bytes
@@ -176,7 +178,7 @@ def get_displayed_array(prob: np.ndarray, binary: np.ndarray, length: int) -> np
             array.append(2)
     return np.array(array)
 
-def display_array(display_array: np.ndarray, name: str) -> None:
+def display_array(display_array: np.ndarray, name: str, display : bool = False) -> None:
     """Nice display
 
     :param display_array: display array previously generated
@@ -202,12 +204,42 @@ def display_array(display_array: np.ndarray, name: str) -> None:
     ax.set_aspect('equal')
     plt.box(False)
     plt.savefig(f'{name}.png')
-    plt.show()
+    if display:
+        plt.show()
+
+def compare_arrays(display_array: np.ndarray, display_array2: np.ndarray, name: str, display : bool = False) -> None:
+    """Nice display
+
+    :param display_array: display array previously generated
+    :type display_array: np.ndarray
+    """
+
+    #Custom colormap
+    cmap = colors.ListedColormap(['green', 'yellow', "white"])
+    bounds=[0,0.5,1.5,3]
+    norm = colors.BoundaryNorm(bounds, cmap.N)
+
+    fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(8, 4))
+    fig.tight_layout()
+
+    ax1.pcolormesh(display_array.reshape((90,90)), edgecolors='k', linewidth=0.5, cmap=cmap, norm=norm)
+    ax1.invert_yaxis()
+    ax1.axis("off")
+    #ax1.set_aspect('equal')
+
+    ax2.pcolormesh(display_array2.reshape((90,90)), edgecolors='k', linewidth=0.5, cmap=cmap, norm=norm)
+    ax2.invert_yaxis()
+    ax2.axis("off")
+    #ax2.set_aspect('equal')
+
+    plt.savefig(f'{name}.png', dpi=plt.gcf().dpi, bbox_inches = 'tight', pad_inches=0)
+    if display:
+        plt.show()
 
 if __name__ == "__main__":
-    sram_read(filename="test_other", rounds=250)
-    """a = np.load("test_same_1.npy", allow_pickle=True)
-    b = np.load("test_four.npy", allow_pickle=True)
+    #sram_read(filename="test_other", rounds=250)
+    a = np.load("test_same_1.npy", allow_pickle=True)
+    b = np.load("test_other.npy", allow_pickle=True)
     print(np.array_equal(a,b))
     _, binary_array = get_arrays_from_save(a)
     prob, length = get_proba_array(binary_array)
@@ -218,7 +250,6 @@ if __name__ == "__main__":
     print(np.array_equal(prob,prob2))
     disp_array2 = get_displayed_array(prob2, binary_array2, length)
     print(np.array_equal(disp_array,disp_array2))
-
+    compare_arrays(disp_array, disp_array2, "Test2", True)
     print(np.count_nonzero(disp_array==disp_array2))
-    from scipy.spatial import *
-    print(distance.hamming(disp_array, disp_array2)*disp_array.shape[0])"""
+    print(distance.hamming(disp_array, disp_array2)*disp_array.shape[0])
