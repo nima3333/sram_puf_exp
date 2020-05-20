@@ -209,27 +209,52 @@ def display_array(display_array: np.ndarray, name: str, display : bool = False) 
     if display:
         plt.show()
 
-def compare_arrays(display_array1: np.ndarray, display_array2: np.ndarray, name: str, display : bool = False) -> None:
+def compare_arrays(display_array1: np.ndarray, display_array2: np.ndarray, name: str) -> None:
+    """Display a comparaison graph
 
+    :param display_array1: display array previously generated
+    :type display_array1: np.ndarray
+    :param display_array2: display array previously generated
+    :type display_array2: np.ndarray
+    :param name: name of the file (without extension)
+    :type name: str
+    """
+    
     buf1 = io.BytesIO()
     buf2 = io.BytesIO()
+    buf3 = io.BytesIO()
+
     display_array(display_array1, buf1, False)
     display_array(display_array2, buf2, False)
+
+    a = np.count_nonzero(display_array1==display_array2)
+    b = len(display_array1) - a
+    fig = plt.figure(figsize=(10,10))
+    patches, texts, _ = plt.pie([a, b], autopct="%1.1f%%", wedgeprops=dict(width=0.5), textprops={'fontsize': 18})
+    plt.legend(patches, ('Same bit', 'Different bit'), loc="best", prop={'size': 20})
+    plt.savefig(buf3, dpi=plt.gcf().dpi, bbox_inches = 'tight', pad_inches=0.4)
+
     buf1.seek(0)
     buf2.seek(0)
+    buf3.seek(0)
     im1 = Image.open(buf1)
     im2 = Image.open(buf2)
-    dst = Image.new('RGB', (im1.width + im2.width, im1.height))
+    im3 = Image.open(buf3)
+
+    dst = Image.new('RGB', (im1.width + im2.width + im2.width, im1.height))
     dst.paste(im1, (0, 0))
     dst.paste(im2, (im1.width, 0))
+    dst.paste(im3, (im1.width + im2.width, 0))
     dst.save(f'{name}.png')
     buf1.close()
     buf2.close()
+    buf3.close()
+
 
 if __name__ == "__main__":
     #sram_read(filename="test_other", rounds=250)
     a = np.load("test_same_1.npy", allow_pickle=True)
-    b = np.load("test_other.npy", allow_pickle=True)
+    b = np.load("save.npy", allow_pickle=True)
     print(np.array_equal(a,b))
     _, binary_array = get_arrays_from_save(a)
     prob, length = get_proba_array(binary_array)
