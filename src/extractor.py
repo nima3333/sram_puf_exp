@@ -41,7 +41,7 @@ def get_serial_matrix(serial_txt: np.ndarray) -> np.ndarray:
     :rtype: np.ndarray
     """
 
-    new_file = [x.rstrip().decode() for x in serial_txt if x not in [b'\x00', b'\r\n']]
+    new_file = [x.rstrip().decode(errors="ignore") for x in serial_txt if x not in [b'\x00', b'\r\n']]
     assert('BEGINNING' in new_file[0])
     memory_size = int(new_file[1])+1
     mem = np.zeros(memory_size, dtype=np.int16)
@@ -252,9 +252,9 @@ def compare_arrays(display_array1: np.ndarray, display_array2: np.ndarray, name:
 
 
 if __name__ == "__main__":
-    #sram_read(filename="test_1_2", rounds=250)
-    a = np.load("C:\\Users\\nima\\Desktop\\sram_puf_exp\\experiments\\test_four.npy", allow_pickle=True)
-    b = np.load("C:\\Users\\nima\\Desktop\\sram_puf_exp\\experiments\\test_1_2.npy", allow_pickle=True)
+    #sram_read(filename="test_four_5", rounds=50)
+    a = np.load("./test_four_2.npy", allow_pickle=True)
+    b = np.load("./test_four_5.npy", allow_pickle=True)
     #print(np.array_equal(a,b))
     _, binary_array = get_arrays_from_save(a)
     prob, length = get_proba_array(binary_array)
