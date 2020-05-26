@@ -48,7 +48,7 @@ def get_serial_matrix(serial_txt: np.ndarray) -> np.ndarray:
     i=0
     for line in new_file[2:]:
         elements = line.split(" ")
-        for elem in elements[:-1]:
+        for elem in elements:
             mem[i] = int(elem, 16)
             i+=1
     return mem
@@ -252,20 +252,16 @@ def compare_arrays(display_array1: np.ndarray, display_array2: np.ndarray, name:
 
 
 if __name__ == "__main__":
-    sram_read(filename="test_1_2", rounds=250)
-    """    a = np.load("test_same_1.npy", allow_pickle=True)
-    b = np.load("save.npy", allow_pickle=True)
-    print(np.array_equal(a,b))
+    #sram_read(filename="test_1_2", rounds=250)
+    a = np.load("C:\\Users\\nima\\Desktop\\sram_puf_exp\\experiments\\test_four.npy", allow_pickle=True)
+    b = np.load("C:\\Users\\nima\\Desktop\\sram_puf_exp\\experiments\\test_1_2.npy", allow_pickle=True)
+    #print(np.array_equal(a,b))
     _, binary_array = get_arrays_from_save(a)
     prob, length = get_proba_array(binary_array)
     disp_array = get_displayed_array(prob, binary_array, length)
+
     _, binary_array2 = get_arrays_from_save(b)
-    print(np.array_equal(binary_array,binary_array2))
     prob2, length = get_proba_array(binary_array2)
-    print(np.array_equal(prob,prob2))
     disp_array2 = get_displayed_array(prob2, binary_array2, length)
-    print(np.array_equal(disp_array,disp_array2))
-    compare_arrays(disp_array, disp_array2, "concat", True)
-    print(np.count_nonzero(disp_array==disp_array2))
-    print(distance.hamming(disp_array, disp_array2)*disp_array.shape[0])
-    """
+
+    compare_arrays(disp_array, disp_array2, "concat")
