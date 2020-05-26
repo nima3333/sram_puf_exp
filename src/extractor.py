@@ -253,7 +253,7 @@ def compare_arrays(display_array1: np.ndarray, display_array2: np.ndarray, name:
 
 if __name__ == "__main__":
     #sram_read(filename="test_four_5", rounds=50)
-    a = np.load("./test_four_2.npy", allow_pickle=True)
+    a = np.load("./experiments/test_2_2.npy", allow_pickle=True)
     b = np.load("./test_four_5.npy", allow_pickle=True)
     #print(np.array_equal(a,b))
     _, binary_array = get_arrays_from_save(a)
