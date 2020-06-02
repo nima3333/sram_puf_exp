@@ -106,6 +106,7 @@ def get_arrays_from_save(a : np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
     """Transform the saved npy file, already loaded, to 2 arrays of the dump sram values
     The hexa array is a int array with values of bytes
     The binary array, 8 times bigger, is a int array with the bit values
+    //TODO: hexa array not implemented
 
     :param a: already loaded npy file
     :type a: np.ndarray
@@ -250,18 +251,59 @@ def compare_arrays(display_array1: np.ndarray, display_array2: np.ndarray, name:
     buf2.close()
     buf3.close()
 
+def proba_test(serial_txt: np.ndarray) -> np.ndarray:
+    """TODO
+
+    :param serial_txt: array of strings representing the serial transmission
+    :type serial_txt: np.ndarray
+    :return: TODO
+    :rtype: np.ndarray
+    """
+
+    array = np.zeros(16)
+    new_file = [x.rstrip().decode(errors="ignore") for x in serial_txt if x not in [b'\x00', b'\r\n']]
+    print(new_file[0])
+    assert('BEGINNING' in new_file[0])
+    memory_size = int(new_file[1])+1
+    mem = np.zeros(memory_size, dtype=np.int16)
+    i=0
+    for line in new_file[2:]:
+        elements = line.split(" ")
+        for elem in elements:
+            if len(elem)==1:
+                print(elem)
+                array[int(elem[0],16)] += 1
+                array[0] += 1
+            else:
+                array[int(elem[0],16)] += 1
+                array[int(elem[1],16)] += 1
+            i+=1
+    return array
 
 if __name__ == "__main__":
-    #sram_read(filename="test_four_5", rounds=50)
-    a = np.load("./experiments/test_2_2.npy", allow_pickle=True)
-    b = np.load("./test_four_5.npy", allow_pickle=True)
+    sram_read(filename="test_5", rounds=100)
+    a = np.load("test_5.npy", allow_pickle=True)
+    #b = np.load("./experiments/test_2_2.npy", allow_pickle=True)[1:]
     #print(np.array_equal(a,b))
     _, binary_array = get_arrays_from_save(a)
+    b= proba_test(a[0])
+
+    plt.bar( [hex(i) for i in range(16)] , b)
+    plt.title("Distribution des nibbles sur uno2")
+    plt.show()
+    
     prob, length = get_proba_array(binary_array)
     disp_array = get_displayed_array(prob, binary_array, length)
-
-    _, binary_array2 = get_arrays_from_save(b)
-    prob2, length = get_proba_array(binary_array2)
-    disp_array2 = get_displayed_array(prob2, binary_array2, length)
-
-    compare_arrays(disp_array, disp_array2, "concat")
+    print(100 * np.count_nonzero(disp_array==0) / disp_array.shape[0])
+    print(100 * np.count_nonzero(disp_array==1) / disp_array.shape[0])
+    print(np.count_nonzero(disp_array==2))
+    display_array(disp_array, "test", True)
+    """
+        _, binary_array2 = get_arrays_from_save(b)
+        prob2, length = get_proba_array(binary_array2)
+        disp_array2 = get_displayed_array(prob2, binary_array2, length)
+        print(100 * np.count_nonzero(disp_array2==0) / disp_array2.shape[0])
+        print(100 * np.count_nonzero(disp_array2==1) / disp_array2.shape[0])
+        print(100 * np.count_nonzero(disp_array2==2) / disp_array2.shape[0])
+    """
+    #compare_arrays(disp_array, disp_array2, "concat")
