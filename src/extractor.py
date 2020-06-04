@@ -5,7 +5,7 @@ from matplotlib import colors
 import matplotlib as mlp
 import serial.tools.list_ports
 import time
-from typing import Tuple
+from typing import Tuple, Iterable
 from scipy.spatial import *
 from PIL import Image
 import io
@@ -61,11 +61,11 @@ def get_serial_port() -> str:
     """
     myports = [tuple(p) for p in list(serial.tools.list_ports.comports())]
     myport = ""
+    print(myports)
     for port in myports:
         if "Arduino Uno" in port[1]:
             myport = port[0]
             break
-    assert(myport)
     print(f"Port selectionné : {myport}")
     return myport
 
@@ -280,30 +280,50 @@ def proba_test(serial_txt: np.ndarray) -> np.ndarray:
             i+=1
     return array
 
+def autocorr(x):
+    result = np.correlate(x, x, mode='full')
+    return result[result.size//2:]
+
+from scipy.fft import fft, ifft
+
+def aaafft(cor):
+    N = len(cor)
+    yf = fft(cor)
+    plt.plot(range(N//2), 2.0/N * np.abs(yf[0:N//2]))
+    plt.show()
+
+
 if __name__ == "__main__":
-    sram_read(filename="test_5", rounds=100)
-    a = np.load("test_5.npy", allow_pickle=True)
-    #b = np.load("./experiments/test_2_2.npy", allow_pickle=True)[1:]
-    #print(np.array_equal(a,b))
+    #sram_read(filename="esp32", rounds=100)
+    a = np.load("./experiments/test_1_2.npy", allow_pickle=True)
+    b = np.load("./experiments/test_2_2.npy", allow_pickle=True)[1:]
+
     _, binary_array = get_arrays_from_save(a)
-    b= proba_test(a[0])
+
+    a = binary_array[5].copy()
+    a[np.where(a==0)] = -1
+    print(np.mean(a))
+    auto = autocorr(a) / autocorr(a)[0]
+    plt.plot(range(len(auto)), auto)
+    plt.show()
+    aaafft(auto)
+    """b= proba_test(a[0])
 
     plt.bar( [hex(i) for i in range(16)] , b)
     plt.title("Distribution des nibbles sur uno2")
-    plt.show()
-    
-    prob, length = get_proba_array(binary_array)
-    disp_array = get_displayed_array(prob, binary_array, length)
-    print(100 * np.count_nonzero(disp_array==0) / disp_array.shape[0])
-    print(100 * np.count_nonzero(disp_array==1) / disp_array.shape[0])
-    print(np.count_nonzero(disp_array==2))
-    display_array(disp_array, "test", True)
-    """
+    plt.show()"""
+        
+    """    prob, length = get_proba_array(binary_array)
+        disp_array = get_displayed_array(prob, binary_array, length)
+        print(100 * np.count_nonzero(disp_array==0) / disp_array.shape[0])
+        print(100 * np.count_nonzero(disp_array==1) / disp_array.shape[0])
+        print(np.count_nonzero(disp_array==2))
+        display_array(disp_array, "test", True)
         _, binary_array2 = get_arrays_from_save(b)
         prob2, length = get_proba_array(binary_array2)
         disp_array2 = get_displayed_array(prob2, binary_array2, length)
         print(100 * np.count_nonzero(disp_array2==0) / disp_array2.shape[0])
         print(100 * np.count_nonzero(disp_array2==1) / disp_array2.shape[0])
         print(100 * np.count_nonzero(disp_array2==2) / disp_array2.shape[0])
+        compare_arrays(disp_array, disp_array2, "concat")
     """
-    #compare_arrays(disp_array, disp_array2, "concat")
