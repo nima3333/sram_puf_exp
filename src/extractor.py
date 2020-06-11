@@ -284,19 +284,21 @@ def autocorr(x):
     result = np.correlate(x, x, mode='full')
     return result[result.size//2:]
 
-from scipy.fft import fft, ifft
 
 def aaafft(cor):
     N = len(cor)
-    yf = fft(cor)
-    plt.plot(range(N//2), 2.0/N * np.abs(yf[0:N//2]))
+    Y    = np.fft.fft(cor)
+    freq = np.fft.fftfreq(len(cor), 1)
+
+    plt.bar( freq, np.abs(Y), 1/N)
+    plt.title("FFT autocorellation nano 2")
     plt.show()
 
 
 if __name__ == "__main__":
     #sram_read(filename="esp32", rounds=100)
     a = np.load("./experiments/test_1_2.npy", allow_pickle=True)
-    b = np.load("./experiments/test_2_2.npy", allow_pickle=True)[1:]
+    a = np.load("./experiments/test_2_2.npy", allow_pickle=True)[1:]
 
     _, binary_array = get_arrays_from_save(a)
 
@@ -305,6 +307,7 @@ if __name__ == "__main__":
     print(np.mean(a))
     auto = autocorr(a) / autocorr(a)[0]
     plt.plot(range(len(auto)), auto)
+    plt.title("Autocorellation Nano 2")
     plt.show()
     aaafft(auto)
     """b= proba_test(a[0])
