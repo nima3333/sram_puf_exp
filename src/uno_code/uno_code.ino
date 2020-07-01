@@ -25,6 +25,8 @@ void DAC_rise(int divide){
 void setup() {
   Serial.begin(57600);
   Wire.begin();
+  //TODO: test
+  Wire.setClock(400000);
   DAC_control(0);
   
   Serial.println(F("How many rounds"));
