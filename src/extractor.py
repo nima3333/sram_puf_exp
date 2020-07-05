@@ -189,8 +189,8 @@ def display_array(display_array: np.ndarray, name: str, display : bool = False) 
     """
 
     #Custom colormap
-    cmap = colors.ListedColormap(['green', 'yellow', "white"])
-    bounds=[0,0.5,1.5,3]
+    cmap = colors.ListedColormap(['green', 'yellow', "white", "red"])
+    bounds=[0,0.5,1.5,2.5,3.5]
     norm = colors.BoundaryNorm(bounds, cmap.N)
 
     """Old version
@@ -251,6 +251,21 @@ def compare_arrays(display_array1: np.ndarray, display_array2: np.ndarray, name:
     buf2.close()
     buf3.close()
 
+def compare_arrays_flipping_bytes(display_array1: np.ndarray, display_array2: np.ndarray, name: str) -> None:
+    """Display a comparaison graph
+
+    :param display_array1: display array previously generated
+    :type display_array1: np.ndarray
+    :param display_array2: display array previously generated
+    :type display_array2: np.ndarray
+    :param name: name of the file (without extension)
+    :type name: str
+    """
+
+    display_array1[np.where(display_array1!=display_array2)]=3
+    display_array(display_array1, "ee", True)
+
+
 def proba_test(serial_txt: np.ndarray) -> np.ndarray:
     """TODO
 
@@ -296,20 +311,27 @@ def aaafft(cor):
 
 
 if __name__ == "__main__":
-    #sram_read(filename="esp32", rounds=100)
-    a = np.load("./experiments/test_1_2.npy", allow_pickle=True)
-    a = np.load("./experiments/test_2_2.npy", allow_pickle=True)[1:]
+    #sram_read(filename="test_flipping_fac5", rounds=50)
+    a = np.load("./test_flipping_fac2.npy", allow_pickle=True)[1:]
+    b = np.load("./test_flipping_fac5.npy", allow_pickle=True)[1:]
 
     _, binary_array = get_arrays_from_save(a)
+    prob, length = get_proba_array(binary_array)
+    disp_array = get_displayed_array(prob, binary_array, length)
 
-    a = binary_array[5].copy()
+    _, binary_array2 = get_arrays_from_save(b)
+    prob2, length = get_proba_array(binary_array2)
+    disp_array2 = get_displayed_array(prob2, binary_array2, length)
+
+    compare_arrays_flipping_bytes(disp_array, disp_array2, "ee")
+    """a = binary_array[5].copy()
     a[np.where(a==0)] = -1
     print(np.mean(a))
     auto = autocorr(a) / autocorr(a)[0]
     plt.plot(range(len(auto)), auto)
     plt.title("Autocorellation Nano 2")
     plt.show()
-    aaafft(auto)
+    aaafft(auto)"""
     """b= proba_test(a[0])
 
     plt.bar( [hex(i) for i in range(16)] , b)

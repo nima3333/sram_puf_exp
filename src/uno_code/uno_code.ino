@@ -6,6 +6,7 @@
 SoftwareSerial mySerial(3, 4);
 int i = 0;
 int compteur = 0;
+unsigned long time;
 
 void DAC_control(int value){
   Wire.beginTransmission(MCP4725_ADDR);
@@ -15,13 +16,16 @@ void DAC_control(int value){
   Wire.endTransmission();
 }
 
-void DAC_rise(int divide){
+void DAC_rise(int factor){
   //Correspond to Sx signal
-  //TODO: measure with oscilloscope rising time
-  for(int i=0; i<4096; i++){
-    //TODO: how to adjust ? sleep or increment by more ?
+  //  factor = 1 => 585ms rising time
+  //  x = 585/factor ms
+  
+  int to_add = pow(2, factor-1);
+  for(int i=0; i<4096; i += to_add){
     DAC_control(i);
   }
+  DAC_control(4095);
 }
 
 int round_saturate(float y){
@@ -31,23 +35,26 @@ int round_saturate(float y){
 
 void DAC_combination(float y, int a, int b){
   //Correspond to Sy signal, combination of two Sx
-  //from 0 to y : waveform S0
-  //from y to 1 : waveform S1
-  //y=1 is 4096
-  //TODO: adopt DAC_rise fixes
+  //  from 0 to y : waveform S0
+  //  from y to 1 : waveform S1
+  //  y=1 is 4096
+
   int limit = round_saturate(y);
-  for(int i=0; i<limit; i++){
+  int to_add1 = pow(2, a-1);
+  int to_add2 = pow(2, b-1);
+
+  for(int i=0; i<limit; i+=to_add1){
     DAC_control(i);
   }
-  for(int i=limit; i<4096; i++){
+  for(int i=limit; i<4096; i+=to_add2){
     DAC_control(i);
   }
+  DAC_control(4095);
 }
 
 void setup() {
   Serial.begin(57600);
   Wire.begin();
-  //TODO: test
   Wire.setClock(400000);
   DAC_control(0);
   
@@ -62,7 +69,7 @@ void setup() {
   delay(1000);
   
   mySerial.begin(57600);
-  DAC_control(4095);
+  DAC_rise(5);
 }
 
 void loop() {
@@ -80,7 +87,7 @@ void loop() {
           for (;;);
         }
         delay(3000);
-        DAC_control(4095);
+        DAC_rise(5);
       }
     }
   }
