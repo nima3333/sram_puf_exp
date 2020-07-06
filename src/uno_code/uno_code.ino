@@ -30,8 +30,8 @@ void DAC_rise(int factor){
 }
 
 int round_saturate(float y){
-  int result = (int)(y*4096.0);
-  return min(4096, result);
+  int result = (int)(y*4095.0);
+  return min(4095, result);
 }
 
 void DAC_combination(float y, int a, int b){
@@ -43,7 +43,6 @@ void DAC_combination(float y, int a, int b){
   int limit = round_saturate(y);
   int to_add1 = pow(2, a-1);
   int to_add2 = pow(2, b-1);
-
   for(int i=0; i<limit; i+=to_add1){
     DAC_control(i);
   }
@@ -65,6 +64,7 @@ void setup() {
   }
   if (Serial.available()){
     i = Serial.parseInt();
+    Serial.read();
   }
 
   Serial.println(F("Give y"));
@@ -92,8 +92,8 @@ void loop() {
         DAC_control(0);
 
         if(++compteur == i){
-          //for (;;);
-          asm volatile ("  jmp 0");
+          for (;;);
+          //asm volatile ("  jmp 0");
         }
         delay(3000);
         DAC_combination(y, 2, 5);

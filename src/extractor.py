@@ -356,7 +356,11 @@ def aaafft(cor):
 
 
 if __name__ == "__main__":
-    #Get flipping bits
+    
+    for i in range(0, 500, 2):
+        sram_read_y(filename=f"test_y_{i}", rounds=20, y=i/4096)
+
+    """#Get flipping bits
     a = np.load("./new_test_flipping_fac2.npy", allow_pickle=True)[1:]
     b = np.load("./new_test_flipping_fac5.npy", allow_pickle=True)[1:]
 
@@ -369,6 +373,12 @@ if __name__ == "__main__":
     display_array2 = get_displayed_array(prob2, binary_array2, length)
 
     diff = np.where(display_array1!=display_array2)[0]
+
+    new_diff = []    
+    for ind in diff:
+        if display_array1[ind]!=2 and display_array2[ind]!=2:
+            new_diff.append(ind)
+    diff = np.array(new_diff)
     nb_flip = len(diff)
 
     #go through files
@@ -396,10 +406,7 @@ if __name__ == "__main__":
     ax.invert_yaxis()
     ax.set_aspect('equal')
     plt.box(False)
-    plt.show()
-
-    """for i in range(0, 500, 2):
-        sram_read_y(filename=f"test_y_{i}", rounds=20, y=i/4096)"""
+    plt.show()"""
 
     """a = np.load("./new_test_flipping_fac2.npy", allow_pickle=True)[1:]
     b = np.load("./new_test_flipping_fac5.npy", allow_pickle=True)[1:]
