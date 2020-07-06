@@ -102,15 +102,6 @@ def sram_read(filename : str = "save", port : str = None, rounds : int = 250) ->
     np.save(filename, np_data)
 
 def sram_read_y(filename : str = "save", port : str = None, rounds : int = 250, y : float = 0.5) -> None:
-    """Get [rounds] dump of a part of the SRAM of the arduino
-
-    :param filename: name of the save, defaults to "save"
-    :type filename: str, optional
-    :param port: serial port, defaults to None
-    :type port: str, optional
-    :param rounds: number of sram dump, defaults to 250
-    :type rounds: int, optional
-    """
 
     data = []
     if port is None:
@@ -141,7 +132,7 @@ def sram_read_y(filename : str = "save", port : str = None, rounds : int = 250, 
                 data.append(ligne)
 
     np_data = np.array(data)
-    np.save(filename, np_data)
+    np.save("./Sy_test/"+filename, np_data)
 
 
 def get_arrays_from_save(a : np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
@@ -361,8 +352,8 @@ def aaafft(cor):
 
 
 if __name__ == "__main__":
-    for i in range(2):
-        sram_read_y(filename=f"testy{i}", rounds=1, y=1/(1+i))
+    for i in range(0, 500, 2):
+        sram_read_y(filename=f"test_y_{i}", rounds=20, y=i/4096)
 
     """a = np.load("./new_test_flipping_fac2.npy", allow_pickle=True)[1:]
     b = np.load("./new_test_flipping_fac5.npy", allow_pickle=True)[1:]

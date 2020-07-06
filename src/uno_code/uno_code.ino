@@ -30,8 +30,8 @@ void DAC_rise(int factor){
 }
 
 int round_saturate(float y){
-  int result = int(y*4096);
-  return max(4096, result);
+  int result = (int)(y*4096.0);
+  return min(4096, result);
 }
 
 void DAC_combination(float y, int a, int b){
