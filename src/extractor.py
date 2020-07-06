@@ -9,6 +9,8 @@ from typing import Tuple, Iterable
 from scipy.spatial import *
 from PIL import Image
 import io
+import glob
+import re
 
 def get_mem_matrix(file: str) -> np.ndarray:
     """[Depreciated] Convert a serial transmission log into a matrix of bytes
@@ -49,6 +51,8 @@ def get_serial_matrix(serial_txt: np.ndarray) -> np.ndarray:
     for line in new_file[2:]:
         elements = line.split(" ")
         for elem in elements:
+            if 'How' in elements[0]:
+                continue
             mem[i] = int(elem, 16)
             i+=1
     return mem
@@ -352,8 +356,51 @@ def aaafft(cor):
 
 
 if __name__ == "__main__":
-    for i in range(0, 500, 2):
-        sram_read_y(filename=f"test_y_{i}", rounds=20, y=i/4096)
+    #Get flipping bits
+    a = np.load("./new_test_flipping_fac2.npy", allow_pickle=True)[1:]
+    b = np.load("./new_test_flipping_fac5.npy", allow_pickle=True)[1:]
+
+    _, binary_array = get_arrays_from_save(a)
+    prob, length = get_proba_array(binary_array)
+    display_array1 = get_displayed_array(prob, binary_array, length)
+
+    _, binary_array2 = get_arrays_from_save(b)
+    prob2, length = get_proba_array(binary_array2)
+    display_array2 = get_displayed_array(prob2, binary_array2, length)
+
+    diff = np.where(display_array1!=display_array2)[0]
+    nb_flip = len(diff)
+
+    #go through files
+    files = glob.glob(".\\Sy_test/*.npy")
+    max_n = len(files)
+
+    matrix = np.zeros((nb_flip, max_n), dtype=int)
+    for measure in files:
+
+        number = int(re.findall(r'\.\\Sy_test\\test_y_([0-9]+)\.npy', measure)[0])//2
+        a = np.load(measure, allow_pickle=True)[1:]
+        _, binary_array = get_arrays_from_save(a)
+        prob, length = get_proba_array(binary_array)
+        disp_array = get_displayed_array(prob, binary_array, length)
+        matrix[:,number] = disp_array[diff]
+
+    #Custom colormap
+    cmap = colors.ListedColormap(['green', 'yellow', "white", "red"])
+    bounds=[0,0.5,1.5,2.5,3.5]
+    norm = colors.BoundaryNorm(bounds, cmap.N)
+
+    fig = plt.figure(figsize=(20,20))
+    plt.pcolormesh(matrix, edgecolors='k', linewidth=1, cmap=cmap, norm=norm)
+    plt.axis('off')
+    ax = plt.gca()
+    ax.invert_yaxis()
+    ax.set_aspect('equal')
+    plt.box(False)
+    plt.show()
+
+    """for i in range(0, 500, 2):
+        sram_read_y(filename=f"test_y_{i}", rounds=20, y=i/4096)"""
 
     """a = np.load("./new_test_flipping_fac2.npy", allow_pickle=True)[1:]
     b = np.load("./new_test_flipping_fac5.npy", allow_pickle=True)[1:]
