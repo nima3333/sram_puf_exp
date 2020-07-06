@@ -377,9 +377,8 @@ if __name__ == "__main__":
 
     matrix = np.zeros((nb_flip, max_n), dtype=int)
     for measure in files:
-
         number = int(re.findall(r'\.\\Sy_test\\test_y_([0-9]+)\.npy', measure)[0])//2
-        a = np.load(measure, allow_pickle=True)[1:]
+        a = np.load(measure, allow_pickle=True)[1:-1]
         _, binary_array = get_arrays_from_save(a)
         prob, length = get_proba_array(binary_array)
         disp_array = get_displayed_array(prob, binary_array, length)
@@ -391,7 +390,7 @@ if __name__ == "__main__":
     norm = colors.BoundaryNorm(bounds, cmap.N)
 
     fig = plt.figure(figsize=(20,20))
-    plt.pcolormesh(matrix, edgecolors='k', linewidth=1, cmap=cmap, norm=norm)
+    plt.pcolormesh(matrix[:,:], edgecolors='k', linewidth=0, cmap=cmap, norm=norm)
     plt.axis('off')
     ax = plt.gca()
     ax.invert_yaxis()
