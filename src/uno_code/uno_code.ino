@@ -65,7 +65,6 @@ void setup() {
   }
   if (Serial.available()){
     i = Serial.parseInt();
-    Serial.read();
   }
 
   Serial.println(F("Give y"));
@@ -77,7 +76,6 @@ void setup() {
     Serial.read();
   }
   delay(1000);
-
   mySerial.begin(57600);
   DAC_combination(y, 2, 5);
 }

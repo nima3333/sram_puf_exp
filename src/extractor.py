@@ -101,6 +101,48 @@ def sram_read(filename : str = "save", port : str = None, rounds : int = 250) ->
     np_data = np.array(data)
     np.save(filename, np_data)
 
+def sram_read_y(filename : str = "save", port : str = None, rounds : int = 250, y : float = 0.5) -> None:
+    """Get [rounds] dump of a part of the SRAM of the arduino
+
+    :param filename: name of the save, defaults to "save"
+    :type filename: str, optional
+    :param port: serial port, defaults to None
+    :type port: str, optional
+    :param rounds: number of sram dump, defaults to 250
+    :type rounds: int, optional
+    """
+
+    data = []
+    if port is None:
+        myport = get_serial_port()
+    with Serial(port=myport, baudrate=57600, timeout=0.5, writeTimeout=1, ) as port_serie:
+        if port_serie.isOpen():
+            ligne = port_serie.readlines()
+            print(ligne)
+            ligne = port_serie.readlines()
+            print(ligne)
+            ligne = port_serie.readlines()
+            print(ligne)
+            ligne = port_serie.readlines()
+            print(ligne)
+            port_serie.write(str(rounds).encode())
+            ligne = port_serie.readlines()
+            while(not(ligne)):
+                ligne = port_serie.readlines()
+            print(ligne)
+            port_serie.write(str(y).encode())
+
+            for i in range(rounds): 
+                ligne = port_serie.readlines()
+                print(ligne)
+                while(not ligne or (ligne[0] in [b'\x00', b'\r\n']) and len(ligne)<2):
+                    ligne = port_serie.readlines()
+                    print(ligne)
+                data.append(ligne)
+
+    np_data = np.array(data)
+    np.save(filename, np_data)
+
 
 def get_arrays_from_save(a : np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
     """Transform the saved npy file, already loaded, to 2 arrays of the dump sram values
@@ -319,8 +361,10 @@ def aaafft(cor):
 
 
 if __name__ == "__main__":
-    #sram_read(filename="new_test_flipping_fac2", rounds=50)
-    a = np.load("./new_test_flipping_fac2.npy", allow_pickle=True)[1:]
+    for i in range(2):
+        sram_read_y(filename=f"testy{i}", rounds=1, y=1/(1+i))
+
+    """a = np.load("./new_test_flipping_fac2.npy", allow_pickle=True)[1:]
     b = np.load("./new_test_flipping_fac5.npy", allow_pickle=True)[1:]
 
     _, binary_array = get_arrays_from_save(a)
@@ -331,7 +375,7 @@ if __name__ == "__main__":
     prob2, length = get_proba_array(binary_array2)
     disp_array2 = get_displayed_array(prob2, binary_array2, length)
 
-    compare_arrays_flipping_bytes(disp_array, disp_array2, "nanoNew_flipping_2_5")
+    compare_arrays_flipping_bytes(disp_array, disp_array2, "nanoNew_flipping_2_5")"""
     """a = binary_array[5].copy()
     a[np.where(a==0)] = -1
     print(np.mean(a))
