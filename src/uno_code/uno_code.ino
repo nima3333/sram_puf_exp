@@ -5,6 +5,7 @@
 
 SoftwareSerial mySerial(3, 4);
 int i = 0;
+float y = 0;
 int compteur = 0;
 unsigned long time;
 
@@ -66,10 +67,19 @@ void setup() {
     i = Serial.parseInt();
     Serial.read();
   }
+
+  Serial.println(F("Give y"));
+  while(!Serial.available()){
+    delay(100);
+  }
+  if (Serial.available()){
+    y = Serial.parseFloat();
+    Serial.read();
+  }
   delay(1000);
-  
+
   mySerial.begin(57600);
-  DAC_rise(5);
+  DAC_combination(y, 2, 5);
 }
 
 void loop() {
@@ -84,10 +94,11 @@ void loop() {
         DAC_control(0);
 
         if(++compteur == i){
-          for (;;);
+          //for (;;);
+          asm volatile ("  jmp 0");
         }
         delay(3000);
-        DAC_rise(5);
+        DAC_combination(y, 2, 5);
       }
     }
   }

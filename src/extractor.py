@@ -262,8 +262,16 @@ def compare_arrays_flipping_bytes(display_array1: np.ndarray, display_array2: np
     :type name: str
     """
 
+    #count noisy bits flipped 
+    diff = np.where(display_array1!=display_array2)
+    counter = 0
+    for ind in diff[0]:
+        if display_array1[ind]==2 or display_array2[ind]==2:
+            counter += 1
+    print(f"Noisy bits flipped : {counter}\nTotal flipped bits : {len(diff[0])}")
+
     display_array1[np.where(display_array1!=display_array2)]=3
-    display_array(display_array1, "ee", True)
+    display_array(display_array1, name, True)
 
 
 def proba_test(serial_txt: np.ndarray) -> np.ndarray:
@@ -311,9 +319,9 @@ def aaafft(cor):
 
 
 if __name__ == "__main__":
-    #sram_read(filename="test_flipping_fac5", rounds=50)
-    a = np.load("./test_flipping_fac2.npy", allow_pickle=True)[1:]
-    b = np.load("./test_flipping_fac5.npy", allow_pickle=True)[1:]
+    #sram_read(filename="new_test_flipping_fac2", rounds=50)
+    a = np.load("./new_test_flipping_fac2.npy", allow_pickle=True)[1:]
+    b = np.load("./new_test_flipping_fac5.npy", allow_pickle=True)[1:]
 
     _, binary_array = get_arrays_from_save(a)
     prob, length = get_proba_array(binary_array)
@@ -323,7 +331,7 @@ if __name__ == "__main__":
     prob2, length = get_proba_array(binary_array2)
     disp_array2 = get_displayed_array(prob2, binary_array2, length)
 
-    compare_arrays_flipping_bytes(disp_array, disp_array2, "ee")
+    compare_arrays_flipping_bytes(disp_array, disp_array2, "nanoNew_flipping_2_5")
     """a = binary_array[5].copy()
     a[np.where(a==0)] = -1
     print(np.mean(a))
