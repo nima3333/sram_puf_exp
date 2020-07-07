@@ -357,8 +357,8 @@ def aaafft(cor):
 
 if __name__ == "__main__":
     
-    """for i in range(0, 500, 2):
-        sram_read_y(filename=f"test_y_{i}", rounds=20, y=i/4096)"""
+    """for i in range(500, 4096, 4):
+        sram_read_y(filename=f"test_y_{i}", rounds=15, y=i/4096)"""
 
     #Get flipping bits
     a = np.load("./new_test_flipping_fac2.npy", allow_pickle=True)[1:]
@@ -387,7 +387,7 @@ if __name__ == "__main__":
 
     matrix = np.zeros((nb_flip, max_n), dtype=int)
     for measure in files:
-        number = int(re.findall(r'\.\\Sy_test\\test_y_([0-9]+)\.npy', measure)[0])//2
+        number = int(re.findall(r'\.\\Sy_test\\test_y_([0-9]+)\.npy', measure)[0])//4
         a = np.load(measure, allow_pickle=True)[1:-1]
         _, binary_array = get_arrays_from_save(a)
         prob, length = get_proba_array(binary_array)
