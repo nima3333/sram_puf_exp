@@ -44,16 +44,22 @@ def get_serial_matrix(serial_txt: np.ndarray) -> np.ndarray:
     """
 
     new_file = [x.rstrip().decode(errors="ignore") for x in serial_txt if x not in [b'\x00', b'\r\n']]
-    assert('BEGINNING' in new_file[0])
+    assert('EGINNING' in new_file[0])
     memory_size = int(new_file[1])+1
     mem = np.zeros(memory_size, dtype=np.int16)
     i=0
     for line in new_file[2:]:
+        line = line.replace('  ', ' ')
         elements = line.split(" ")
         for elem in elements:
             if 'How' in elements[0]:
                 continue
-            mem[i] = int(elem, 16)
+            try:
+                mem[i] = int(elem, 16)
+            except:
+                ansi_escape = re.compile(r'\x1b')
+                aaa = ansi_escape.sub('', elem)
+                mem[i] = int(aaa, 16)
             i+=1
     return mem
 
@@ -357,12 +363,16 @@ def aaafft(cor):
 
 if __name__ == "__main__":
     
-    for i in range(300, 600, 2):
-        sram_read_y(filename=f"test_y_{i}", rounds=25, y=i/4096)
+    """for i in range(300, 600, 2):
+        sram_read_y(filename=f"test_y_{i}", rounds=25, y=i/4096)"""
+
+    """sram_read_y(filename=f"new_test_flipping_fac1", rounds=25, y=0)
+    sram_read_y(filename=f"new_test_flipping_fac2", rounds=25, y=1)"""
+    #sram_read("new_test_flipping_fac1", rounds=25)
 
     """#Get flipping bits
-    a = np.load("./new_test_flipping_fac2.npy", allow_pickle=True)[1:]
-    b = np.load("./new_test_flipping_fac5.npy", allow_pickle=True)[1:]
+    a = np.load("new_test_flipping_fac1.npy", allow_pickle=True)[1:]
+    b = np.load("new_test_flipping_fac2.npy", allow_pickle=True)[1:]
 
     _, binary_array = get_arrays_from_save(a)
     prob, length = get_proba_array(binary_array)
@@ -378,7 +388,7 @@ if __name__ == "__main__":
     for ind in diff:
         if display_array1[ind]!=2 and display_array2[ind]!=2:
             new_diff.append(ind)
-    diff = np.array(new_diff)
+    diff = np.array(new_diff)"""
     
     nb_flip = len(diff)
 
@@ -410,7 +420,7 @@ if __name__ == "__main__":
     ax.invert_yaxis()
     ax.set_aspect('equal')
     plt.box(False)
-    plt.show()"""
+    plt.show()
 
     """a = np.load("./new_test_flipping_fac2.npy", allow_pickle=True)[1:]
     b = np.load("./new_test_flipping_fac5.npy", allow_pickle=True)[1:]
