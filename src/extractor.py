@@ -142,7 +142,7 @@ def sram_read_y(filename : str = "save", port : str = None, rounds : int = 250, 
                 data.append(ligne)
 
     np_data = np.array(data)
-    np.save("./Sy_test/"+filename, np_data)
+    np.save(filename, np_data)
 
 
 def get_arrays_from_save(a : np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
@@ -363,8 +363,8 @@ def aaafft(cor):
 
 if __name__ == "__main__":
     
-    """for i in range(300, 600, 2):
-        sram_read_y(filename=f"test_y_{i}", rounds=25, y=i/4096)"""
+    for i in list(range(0, 4096, 100))+[50, 150, 250]:
+        sram_read_y(filename=f"./Sy_test/test_y_{i}", rounds=25, y=i/4096)
 
     """sram_read_y(filename=f"new_test_flipping_fac1", rounds=25, y=0)
     sram_read_y(filename=f"new_test_flipping_fac2", rounds=25, y=1)"""
@@ -390,7 +390,7 @@ if __name__ == "__main__":
             new_diff.append(ind)
     diff = np.array(new_diff)"""
     
-    nb_flip = len(diff)
+    """nb_flip = len(diff)
 
     #go through files
     files = glob.glob(".\\Sy_test/*.npy")
@@ -420,7 +420,7 @@ if __name__ == "__main__":
     ax.invert_yaxis()
     ax.set_aspect('equal')
     plt.box(False)
-    plt.show()
+    plt.show()"""
 
     """a = np.load("./new_test_flipping_fac2.npy", allow_pickle=True)[1:]
     b = np.load("./new_test_flipping_fac5.npy", allow_pickle=True)[1:]

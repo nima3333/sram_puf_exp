@@ -66,18 +66,18 @@ void setup() {
     i = Serial.parseInt();
     Serial.read();
   }
-//
-//  Serial.println(F("Give y"));
-//  while(!Serial.available()){
-//    delay(100);
-//  }
-//  if (Serial.available()){
-//    y = Serial.parseFloat();
-//    Serial.read();
-//  }
+
+  Serial.println(F("Give y"));
+  while(!Serial.available()){
+    delay(100);
+  }
+  if (Serial.available()){
+    y = Serial.parseFloat();
+    Serial.read();
+  }
   delay(1000);
   mySerial.begin(57600);
-  DAC_rise(1);
+  DAC_combination(y, 1, 2);
 }
 
 void loop() {
@@ -96,7 +96,7 @@ void loop() {
           //asm volatile ("  jmp 0");
         }
         delay(3000);
-        DAC_rise(1);
+        DAC_combination(y, 1, 2);
       }
     }
   }
