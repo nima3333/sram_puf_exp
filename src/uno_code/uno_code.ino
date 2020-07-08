@@ -77,7 +77,7 @@ void setup() {
   }
   delay(1000);
   mySerial.begin(57600);
-  DAC_combination(y, 2, 5);
+  DAC_combination(y, 1, 2);
 }
 
 void loop() {
@@ -95,8 +95,8 @@ void loop() {
           for (;;);
           //asm volatile ("  jmp 0");
         }
-        delay(3000);
-        DAC_combination(y, 2, 5);
+        delay(2000);
+        DAC_combination(y, 1, 2);
       }
     }
   }

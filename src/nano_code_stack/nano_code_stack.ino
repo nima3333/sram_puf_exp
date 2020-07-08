@@ -7,7 +7,7 @@ void setup() {
   //Allocate on the stack an array of 1024 bytes
   byte to_print[1024];
 
-  for( int i = 1 ; i <= 1024 ; ++i ){
+  for( int i = 0 ; i <= 1023 ; i++ ){
     Serial.print( to_print[ i ], HEX );
     Serial.print( ' ' );
     if ( (i & 0xF) == 0 )

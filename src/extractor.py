@@ -357,10 +357,10 @@ def aaafft(cor):
 
 if __name__ == "__main__":
     
-    """for i in range(500, 4096, 4):
-        sram_read_y(filename=f"test_y_{i}", rounds=15, y=i/4096)"""
+    for i in range(300, 600, 2):
+        sram_read_y(filename=f"test_y_{i}", rounds=25, y=i/4096)
 
-    #Get flipping bits
+    """#Get flipping bits
     a = np.load("./new_test_flipping_fac2.npy", allow_pickle=True)[1:]
     b = np.load("./new_test_flipping_fac5.npy", allow_pickle=True)[1:]
 
@@ -379,6 +379,7 @@ if __name__ == "__main__":
         if display_array1[ind]!=2 and display_array2[ind]!=2:
             new_diff.append(ind)
     diff = np.array(new_diff)
+    
     nb_flip = len(diff)
 
     #go through files
@@ -387,12 +388,15 @@ if __name__ == "__main__":
 
     matrix = np.zeros((nb_flip, max_n), dtype=int)
     for measure in files:
-        number = int(re.findall(r'\.\\Sy_test\\test_y_([0-9]+)\.npy', measure)[0])//4
-        a = np.load(measure, allow_pickle=True)[1:-1]
-        _, binary_array = get_arrays_from_save(a)
-        prob, length = get_proba_array(binary_array)
-        disp_array = get_displayed_array(prob, binary_array, length)
-        matrix[:,number] = disp_array[diff]
+        try:
+            number = int(re.findall(r'\.\\Sy_test\\test_y_([0-9]+)\.npy', measure)[0])//2
+            a = np.load(measure, allow_pickle=True)[1:-1]
+            _, binary_array = get_arrays_from_save(a)
+            prob, length = get_proba_array(binary_array)
+            disp_array = get_displayed_array(prob, binary_array, length)
+            matrix[:,number] = disp_array[diff]
+        except:
+            pass
 
     #Custom colormap
     cmap = colors.ListedColormap(['green', 'yellow', "white", "red"])
@@ -406,7 +410,7 @@ if __name__ == "__main__":
     ax.invert_yaxis()
     ax.set_aspect('equal')
     plt.box(False)
-    plt.show()
+    plt.show()"""
 
     """a = np.load("./new_test_flipping_fac2.npy", allow_pickle=True)[1:]
     b = np.load("./new_test_flipping_fac5.npy", allow_pickle=True)[1:]
