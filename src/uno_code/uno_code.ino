@@ -90,7 +90,7 @@ void loop() {
       char inByte = mySerial.read();
       if(inByte=='X'){
         DAC_control(0);
-
+        Serial.flush();
         if(++compteur == i){
           for (;;);
           //asm volatile ("  jmp 0");
