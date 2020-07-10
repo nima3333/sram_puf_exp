@@ -53,7 +53,7 @@ void DAC_combination(float y, int a, int b){
 }
 
 void setup() {
-  Serial.begin(57600);
+  Serial.begin(115200);
   Wire.begin();
   Wire.setClock(400000);
   DAC_control(0);
@@ -67,17 +67,17 @@ void setup() {
     Serial.read();
   }
 
-  Serial.println(F("Give y"));
-  while(!Serial.available()){
-    delay(100);
-  }
-  if (Serial.available()){
-    y = Serial.parseFloat();
-    Serial.read();
-  }
+//  Serial.println(F("Give y"));
+//  while(!Serial.available()){
+//    delay(100);
+//  }
+//  if (Serial.available()){
+//    y = Serial.parseFloat();
+//    Serial.read();
+//  }
   delay(1000);
   mySerial.begin(57600);
-  DAC_combination(y, 1, 2);
+  DAC_rise(1);
 }
 
 void loop() {
@@ -95,8 +95,9 @@ void loop() {
           for (;;);
           //asm volatile ("  jmp 0");
         }
-        delay(3000);
-        DAC_combination(y, 1, 2);
+        delay(1000);
+        DAC_rise(1);
+        //DAC_combination(y, 1, 2);
       }
     }
   }

@@ -92,19 +92,22 @@ def sram_read(filename : str = "save", port : str = None, rounds : int = 250) ->
     data = []
     if port is None:
         myport = get_serial_port()
-    with Serial(port=myport, baudrate=57600, timeout=0.5, writeTimeout=1, ) as port_serie:
+    with Serial(port=myport, baudrate=115200, timeout=0.2, writeTimeout=1, ) as port_serie:
         if port_serie.isOpen():
             ligne = port_serie.readlines()
-            ligne = port_serie.readlines()
-            ligne = port_serie.readlines()
-            ligne = port_serie.readlines()
+            while(not(ligne) or not(any(b"How many rounds" in elem for elem in ligne))):
+                ligne = port_serie.readlines()
             port_serie.write(str(rounds).encode())
+            print("[+] Round success")            
 
             for i in range(rounds): 
                 ligne = port_serie.readlines()
                 while(not ligne or (ligne[0] in [b'\x00', b'\r\n']) and len(ligne)<2):
                     ligne = port_serie.readlines()
-                    print(ligne)
+                print(f"[+] Reading {i} done, checking ... ", end='')
+                _, _ = get_arrays_from_save([ligne])
+                print("OK")
+
                 data.append(ligne)
 
     np_data = np.array(data)
@@ -118,12 +121,8 @@ def sram_read_y(filename : str = "save", port : str = None, rounds : int = 250, 
     with Serial(port=myport, baudrate=57600, timeout=0.5, writeTimeout=1, ) as port_serie:
         if port_serie.isOpen():
             ligne = port_serie.readlines()
-            print(ligne)
-            ligne = port_serie.readlines()
-            print(ligne)
-            ligne = port_serie.readlines()
-            print(ligne)
-            ligne = port_serie.readlines()
+            while(not ligne or not(b"How many rounds" in ligne)):
+                ligne = port_serie.readlines()
             print(ligne)
             port_serie.write(str(rounds).encode())
             ligne = port_serie.readlines()
@@ -362,9 +361,24 @@ def aaafft(cor):
 
 if __name__ == "__main__":
     
-    y_list = list(range(0, 4096, 100))+[50, 150, 250, 4095] + list(range(0,50)) + list(range(51,100)) + list(range(101,150))
+    #sram_read("test_1000", rounds=50)
+
+    a = np.load("./test_500.npy", allow_pickle=True)[1:]
+    b = np.load("./test_1000.npy", allow_pickle=True)[1:]
+
+    _, binary_array = get_arrays_from_save(a)
+    prob, length = get_proba_array(binary_array)
+    disp_array = get_displayed_array(prob, binary_array, length)
+
+    _, binary_array2 = get_arrays_from_save(b)
+    prob2, length = get_proba_array(binary_array2)
+    disp_array2 = get_displayed_array(prob2, binary_array2, length)
+
+    compare_arrays(disp_array, disp_array2, "testtt")
+
+    """y_list = list(range(0, 4096, 100))+[50, 150, 250, 4095] + list(range(0,50)) + list(range(51,100)) + list(range(101,150))
     y_list = list(set(y_list))
-    y_list.sort()
+    y_list.sort()"""
 
     """for i in range(0,50):
         sram_read_y(filename=f"./Sy_test/test_y_{i}", rounds=25, y=i/4096)
@@ -377,7 +391,7 @@ if __name__ == "__main__":
     sram_read_y(filename=f"new_test_flipping_fac2", rounds=25, y=1)"""
     #sram_read_y(f"./Sy_test/test_y_4095", rounds=25, y=4095)
 
-    #Get flipping bits
+    """#Get flipping bits
     a = np.load("./Sy_test/test_y_0.npy", allow_pickle=True)[1:]
     b = np.load("./Sy_test/test_y_4095.npy", allow_pickle=True)[1:]
 
@@ -390,11 +404,11 @@ if __name__ == "__main__":
     display_array2 = get_displayed_array(prob2, binary_array2, length)
     compare_arrays_flipping_bytes(display_array1, display_array2, "nano_flipping_1_2")
     diff = np.where(display_array1!=display_array2)[0]
-    """new_diff = []    
+    new_diff = []    
     for ind in diff:
         if display_array1[ind]!=2 and display_array2[ind]!=2:
             new_diff.append(ind)
-    diff = np.array(new_diff)"""
+    diff = np.array(new_diff)
     
     nb_flip = len(diff)
 
@@ -434,20 +448,9 @@ if __name__ == "__main__":
     ax.invert_yaxis()
     ax.set_aspect('equal')
     plt.box(False)
-    plt.show()
+    plt.show()"""
 
-    """a = np.load("./new_test_flipping_fac2.npy", allow_pickle=True)[1:]
-    b = np.load("./new_test_flipping_fac5.npy", allow_pickle=True)[1:]
-
-    _, binary_array = get_arrays_from_save(a)
-    prob, length = get_proba_array(binary_array)
-    disp_array = get_displayed_array(prob, binary_array, length)
-
-    _, binary_array2 = get_arrays_from_save(b)
-    prob2, length = get_proba_array(binary_array2)
-    disp_array2 = get_displayed_array(prob2, binary_array2, length)
-
-    compare_arrays_flipping_bytes(disp_array, disp_array2, "nanoNew_flipping_2_5")"""
+   
     """a = binary_array[5].copy()
     a[np.where(a==0)] = -1
     print(np.mean(a))
