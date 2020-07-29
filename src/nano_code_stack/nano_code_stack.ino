@@ -5,9 +5,10 @@ void setup() {
   Serial.println(1024);
 
   //Allocate on the stack an array of 1024 bytes
-  byte to_print[1024];
+  volatile byte aaaa[700];
+  volatile byte to_print[512];
 
-  for( int i = 0 ; i <= 1023 ; i++ ){
+  for( int i = 0 ; i < 512 ; i++ ){
     Serial.print( to_print[ i ], HEX );
     Serial.print( ' ' );
     if ( (i & 0xF) == 0 )
