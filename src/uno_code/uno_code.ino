@@ -31,7 +31,7 @@ void DAC_rise(int factor){
 
 int round_saturate(float y){
   int result = (int)(y*4095.0);
-  return min(4095, result);
+  return constrain(result, 0, 4095);
 }
 
 void DAC_combination(float y, int a, int b){
@@ -39,7 +39,6 @@ void DAC_combination(float y, int a, int b){
   //  from 0 to y : waveform S0
   //  from y to 1 : waveform S1
   //  y=1 is 4096
-
   int limit = round_saturate(y);
   int to_add1 = pow(2, a-1);
   int to_add2 = pow(2, b-1);
