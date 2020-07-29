@@ -10,6 +10,8 @@ int compteur = 0;
 unsigned long time;
 
 void DAC_control(int value){
+  // 143us
+  
   Wire.beginTransmission(MCP4725_ADDR);
   Wire.write(64);
   Wire.write(value >> 4);
@@ -76,10 +78,11 @@ void setup() {
 //  }
   delay(1000);
   mySerial.begin(57600);
-  DAC_rise(1);
 }
 
 void loop() {
+  DAC_rise(1);
+  //DAC_combination(y, 1, 2);
   if (mySerial.available()){
     char inByte = mySerial.read();
     if(inByte!='X'){
@@ -95,8 +98,6 @@ void loop() {
           //asm volatile ("  jmp 0");
         }
         delay(1000);
-        DAC_rise(1);
-        //DAC_combination(y, 1, 2);
       }
     }
   }
