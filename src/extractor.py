@@ -56,7 +56,8 @@ def get_serial_matrix(serial_txt: np.ndarray) -> np.ndarray:
             try:
                 mem[i] = int(elem, 16)
             except:
-                ansi_escape = re.compile(r'\x1b')
+                print(elements)
+                ansi_escape = re.compile(r'\\x[A-Z0-9]{2}')
                 aaa = ansi_escape.sub('', elem)
                 mem[i] = int(aaa, 16)
             i+=1
@@ -105,7 +106,11 @@ def sram_read(filename : str = "save", port : str = None, rounds : int = 250) ->
                 while(not ligne or (ligne[0] in [b'\x00', b'\r\n']) and len(ligne)<2):
                     ligne = port_serie.readlines()
                 print(f"[+] Reading {i} done, checking ... ", end='')
-                _, _ = get_arrays_from_save([ligne])
+                try:
+                    _, _ = get_arrays_from_save([ligne])
+                except:
+                    print("ERROR")
+                    continue
                 print("OK")
 
                 data.append(ligne)
@@ -188,7 +193,8 @@ def get_proba_array(x: np.ndarray) -> np.ndarray:
     :return: array of probabilities
     :rtype: np.ndarray
     """
-
+    x = x.reshape((x.shape[0], -1))
+    print(x.shape)
     length = find_square(x.shape[1])
     nbins = x.max() + 1
     ncols = length
@@ -358,12 +364,49 @@ def aaafft(cor):
     plt.title("FFT autocorellation nano 2")
     plt.show()
 
+def sram_read_new(filename : str = "save", port : str = None, rounds : int = 250) -> None:
+    """Get [rounds] dump of a part of the SRAM of the arduino
+
+    :param filename: name of the save, defaults to "save"
+    :type filename: str, optional
+    :param port: serial port, defaults to None
+    :type port: str, optional
+    :param rounds: number of sram dump, defaults to 250
+    :type rounds: int, optional
+    """
+
+    data = []
+    if port is None:
+        myport = get_serial_port()
+    with Serial(port=myport, baudrate=115200, timeout=0.2, writeTimeout=1, ) as port_serie:
+        if port_serie.isOpen():
+            ligne = port_serie.readlines()
+            while(not(ligne) or not(any(b"How many rounds" in elem for elem in ligne))):
+                ligne = port_serie.readlines()
+            port_serie.write(str(rounds).encode())
+            print("[+] Round success")            
+
+            for i in range(rounds): 
+                ligne = port_serie.readlines()
+                while(not ligne or (ligne[0] in [b'\x00', b'\r\n']) and len(ligne)<2):
+                    ligne = port_serie.readlines()
+                print(f"[+] Reading {i} done, checking ... ", end='')
+                try:
+                    _, _ = get_arrays_from_save([ligne])
+                    print("OK")
+                    data.append(ligne)
+                except:
+                    print("ERROR")
+                    continue
+
+    np_data = np.array(data)
+    np.save(filename, np_data)
 
 if __name__ == "__main__":
     
-    #sram_read("test_1000", rounds=50)
+    #sram_read("new_test_2", rounds=25)
 
-    a = np.load("./test_500.npy", allow_pickle=True)[1:]
+    """a = np.load("./test_500.npy", allow_pickle=True)[1:]
     b = np.load("./test_1000.npy", allow_pickle=True)[1:]
 
     _, binary_array = get_arrays_from_save(a)
@@ -374,7 +417,7 @@ if __name__ == "__main__":
     prob2, length = get_proba_array(binary_array2)
     disp_array2 = get_displayed_array(prob2, binary_array2, length)
 
-    compare_arrays(disp_array, disp_array2, "testtt")
+    compare_arrays(disp_array, disp_array2, "testtt")"""
 
     """y_list = list(range(0, 4096, 100))+[50, 150, 250, 4095] + list(range(0,50)) + list(range(51,100)) + list(range(101,150))
     y_list = list(set(y_list))
@@ -391,10 +434,9 @@ if __name__ == "__main__":
     sram_read_y(filename=f"new_test_flipping_fac2", rounds=25, y=1)"""
     #sram_read_y(f"./Sy_test/test_y_4095", rounds=25, y=4095)
 
-    """#Get flipping bits
-    a = np.load("./Sy_test/test_y_0.npy", allow_pickle=True)[1:]
-    b = np.load("./Sy_test/test_y_4095.npy", allow_pickle=True)[1:]
-
+    #Get flipping bits
+    a = np.load("./new_test_2.npy", allow_pickle=True)[1:]
+    b = np.load("./new_test_1.npy", allow_pickle=True)[1:]
     _, binary_array = get_arrays_from_save(a)
     prob, length = get_proba_array(binary_array)
     display_array1 = get_displayed_array(prob, binary_array, length)
@@ -402,7 +444,8 @@ if __name__ == "__main__":
     _, binary_array2 = get_arrays_from_save(b)
     prob2, length = get_proba_array(binary_array2)
     display_array2 = get_displayed_array(prob2, binary_array2, length)
-    compare_arrays_flipping_bytes(display_array1, display_array2, "nano_flipping_1_2")
+    compare_arrays_flipping_bytes(display_array1, display_array2, "new_nano_flipping_1_2")
+    """
     diff = np.where(display_array1!=display_array2)[0]
     new_diff = []    
     for ind in diff:

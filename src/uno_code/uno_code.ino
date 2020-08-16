@@ -77,11 +77,11 @@ void setup() {
 //    Serial.read();
 //  }
   delay(1000);
-  mySerial.begin(57600);
+  mySerial.begin(38400);
+  DAC_rise(2);
 }
 
 void loop() {
-  DAC_rise(1);
   //DAC_combination(y, 1, 2);
   if (mySerial.available()){
     char inByte = mySerial.read();
@@ -98,6 +98,7 @@ void loop() {
           //asm volatile ("  jmp 0");
         }
         delay(1000);
+        DAC_rise(2);
       }
     }
   }
