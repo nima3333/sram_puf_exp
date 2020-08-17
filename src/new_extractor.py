@@ -35,7 +35,7 @@ def sram_read_new(filename : str = "save", port : str = None, rounds : int = 250
             while(not(ligne) or not(any(b"How many rounds" in elem for elem in ligne))):
                 ligne = port_serie.readlines()
             port_serie.write(str(rounds).encode())
-            print("[P] Round success")            
+            print("[P] Round success")       
 
             for i in range(rounds): 
                 ligne = port_serie.readlines()
@@ -63,6 +63,59 @@ def sram_read_new(filename : str = "save", port : str = None, rounds : int = 250
     np_data = np.array(data)
     print(np_data.shape)
     np.save(filename, np_data)
+
+def sram_read_y(filename : str = "save", port : str = None, rounds : int = 250, y : float = 0.5) -> None:
+
+    data = []
+    if port is None:
+        myport = get_serial_port()
+    with Serial(port=myport, baudrate=115200, timeout=0.2, writeTimeout=1, ) as port_serie:
+        if port_serie.isOpen():
+            ligne = port_serie.readlines()
+            while(not(ligne) or not(any(b"How many rounds" in elem for elem in ligne))):
+                ligne = port_serie.readlines()
+            port_serie.write(str(rounds).encode())
+            print("[P] Round success")       
+                 
+            ligne = port_serie.readlines()
+            while(not(ligne) or not(any(b"Give y" in elem for elem in ligne))):
+                ligne = port_serie.readlines()
+            port_serie.write(str(y).encode())
+            print("[P] sY success")       
+
+            for i in range(rounds): 
+                try:
+                    ligne = port_serie.readlines()
+                    while(not ligne or (ligne[0] in [b'\x00', b'\r\n']) and len(ligne)<2):
+                        ligne = port_serie.readlines()
+                    print(f"[+] Reading {i} done, checking ... ", end='')
+                    lines = ligne[2:]
+                    if lines[0]==b'1024\r\n':
+                        lines = lines[1:]
+                    temp_array = []
+                    for line in lines:
+                        temps = line.decode(encoding="ascii", errors="ignore")
+                        temps = temps.split(" ")
+                        if len(temps)!=17:
+                            print(temps)
+                            print(lines)
+                            assert(len(temps)==17)
+                        for elem in temps[:-1]:
+                            if len(elem)==1:
+                                temp_array += [0]*4
+                                temp_array += list(map(lambda x: int(x), '{0:04b}'.format(int(elem[0], 16))))
+                            else:
+                                temp_array += list(map(lambda x: int(x), '{0:04b}'.format(int(elem[0], 16))))
+                                temp_array += list(map(lambda x: int(x), '{0:04b}'.format(int(elem[1], 16))))
+                    data.append(temp_array)
+                    print("Done")
+                except:
+                    print("ERROR")
+
+    np_data = np.array(data)
+    print(np_data.shape)
+    np.save(filename, np_data)
+
 
 
 def find_square(index: int) -> int:
@@ -168,13 +221,20 @@ def get_displayed_array(prob: np.ndarray, binary: np.ndarray, length: int) -> np
     return np.array(array)
 
 if __name__ == "__main__":
-    sram_read_new("new_nano_2", rounds=50)
-    a = np.load("./new_nano_1.npy", allow_pickle=True)[1:]
+    #sram_read_new("new_nano_2", rounds=50)
+    """a = np.load("./new_nano_1.npy", allow_pickle=True)[1:]
     prob1, length1 = get_proba_array(a)
     display_array1 = get_displayed_array(prob1, a, length1)
 
     b = np.load("./new_nano_2.npy", allow_pickle=True)[1:]
     prob2, length2 = get_proba_array(b)
-    display_array2 = get_displayed_array(prob2, b, length2)
+    display_array2 = get_displayed_array(prob2, b, length2)"""
 
-    compare_arrays_flipping_bytes(display_array1, display_array2, "new_nano_flipping_1_2")
+    #compare_arrays_flipping_bytes(display_array1, display_array2, "new_nano_flipping_1_2")
+
+    y_list = [4095] + list(range(0,150)) + list(range(150, 250, 2))
+    y_list = list(set(y_list))
+    y_list.sort()
+
+    for i in y_list:
+        sram_read_y(filename=f"./Sy_test/test_y_{i}", rounds=25, y=i/4096)
