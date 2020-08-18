@@ -5,7 +5,7 @@
 
 SoftwareSerial mySerial(3, 4);
 int i = 0;
-float y = 0;
+int y = 0;
 int compteur = 0;
 unsigned long time;
 
@@ -36,12 +36,12 @@ int round_saturate(float y){
   return constrain(result, 0, 4095);
 }
 
-void DAC_combination(float y, int a, int b){
+void DAC_combination(int y, int a, int b){
   //Correspond to Sy signal, combination of two Sx
   //  from 0 to y : waveform S0
   //  from y to 1 : waveform S1
   //  y=1 is 4096
-  int limit = round_saturate(y);
+  int limit = y;
   int to_add1 = pow(2, a-1);
   int to_add2 = pow(2, b-1);
   for(int i=0; i<limit; i+=to_add1){
@@ -73,7 +73,7 @@ void setup() {
     delay(100);
   }
   if (Serial.available()){
-    y = Serial.parseFloat();
+    y = Serial.parseInt();
     Serial.read();
   }
   delay(1000);

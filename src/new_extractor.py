@@ -236,5 +236,62 @@ if __name__ == "__main__":
     y_list = list(set(y_list))
     y_list.sort()
 
-    for i in y_list:
-        sram_read_y(filename=f"./Sy_test/test_y_{i}", rounds=25, y=i/4096)
+    """for i in y_list:
+        sram_read_y(filename=f"./Sy_test/test_y_{i}", rounds=25, y=i)
+    """
+    #Get flipping bits
+    a = np.load("./Sy_test/test_y_0.npy", allow_pickle=True)[1:]
+    b = np.load("./Sy_test/test_y_4095.npy", allow_pickle=True)[1:]
+    prob1, length1 = get_proba_array(a)
+    display_array1 = get_displayed_array(prob1, a, length1)
+
+    prob2, length2 = get_proba_array(b)
+    display_array2 = get_displayed_array(prob2, b, length2)
+
+    #compare_arrays_flipping_bytes(display_array1, display_array2, "new_nano_flipping_1_2")
+    
+    diff = np.where(display_array1!=display_array2)[0]
+    new_diff = []    
+    for ind in diff:
+        if display_array1[ind]!=2 and display_array2[ind]!=2:
+            new_diff.append(ind)
+    diff = np.array(new_diff)
+    
+    nb_flip = len(diff)
+
+    #go through files
+    files = glob.glob(".\\Sy_test/*.npy")
+    max_n = len(files)
+
+    matrix = np.zeros((nb_flip, max_n), dtype=int)
+    new_y_list = []
+    for measure in files:
+        number = (int(re.findall(r'\.\\Sy_test\\test_y_([0-9]+)\.npy', measure)[0]))
+        new_y_list.append(number)
+    new_y_list.sort()
+    print(new_y_list)
+
+    for measure in files:
+        try:
+            number = new_y_list.index(int(re.findall(r'\.\\Sy_test\\test_y_([0-9]+)\.npy', measure)[0]))
+            a = np.load(measure, allow_pickle=True)[1:]
+            prob, length = get_proba_array(a)
+            disp_array = get_displayed_array(prob, a, length)
+            matrix[:,number] = disp_array[diff]
+        except Exception as e:
+            print(measure)
+            print(e)
+
+    #Custom colormap
+    cmap = colors.ListedColormap(['green', 'yellow', "white", "red"])
+    bounds=[0,0.5,1.5,2.5,3.5]
+    norm = colors.BoundaryNorm(bounds, cmap.N)
+
+    fig = plt.figure(figsize=(20,20))
+    plt.pcolormesh(matrix[:,:], edgecolors='k', linewidth=0, cmap=cmap, norm=norm)
+    plt.axis('off')
+    ax = plt.gca()
+    ax.invert_yaxis()
+    ax.set_aspect('equal')
+    plt.box(False)
+    plt.show()
