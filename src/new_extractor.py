@@ -232,16 +232,16 @@ if __name__ == "__main__":
 
     #compare_arrays_flipping_bytes(display_array1, display_array2, "new_nano_flipping_1_2")
 
-    y_list = [4095] + list(range(0,150)) + list(range(150, 250, 2))
+    y_list = list(range(0,150)) + list(range(150, 250, 2))
     y_list = list(set(y_list))
     y_list.sort()
 
     """for i in y_list:
-        sram_read_y(filename=f"./Sy_test/test_y_{i}", rounds=25, y=i)
-    """
+        sram_read_y(filename=f"./Sy_test/test_y_{i}", rounds=25, y=i)"""
+
     #Get flipping bits
     a = np.load("./Sy_test/test_y_0.npy", allow_pickle=True)[1:]
-    b = np.load("./Sy_test/test_y_4095.npy", allow_pickle=True)[1:]
+    b = np.load("./Sy_test/test_y_230.npy", allow_pickle=True)[1:]
     prob1, length1 = get_proba_array(a)
     display_array1 = get_displayed_array(prob1, a, length1)
 
@@ -295,3 +295,4 @@ if __name__ == "__main__":
     ax.set_aspect('equal')
     plt.box(False)
     plt.show()
+    
