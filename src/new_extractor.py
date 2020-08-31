@@ -64,7 +64,7 @@ def sram_read_new(filename : str = "save", port : str = None, rounds : int = 250
     print(np_data.shape)
     np.save(filename, np_data)
 
-def sram_read_y(filename : str = "save", port : str = None, rounds : int = 250, y : float = 0.5) -> None:
+def sram_read_y(filename : str = "save", port : str = None, rounds : int = 250, y : int = 2048) -> None:
 
     data = []
     if port is None:
@@ -221,6 +221,7 @@ def get_displayed_array(prob: np.ndarray, binary: np.ndarray, length: int) -> np
     return np.array(array)
 
 if __name__ == "__main__":
+    sram_read_y('test_oscillo', rounds=100, y=4095)
     #sram_read_new("new_nano_2", rounds=50)
     """a = np.load("./new_nano_1.npy", allow_pickle=True)[1:]
     prob1, length1 = get_proba_array(a)
@@ -232,14 +233,14 @@ if __name__ == "__main__":
 
     #compare_arrays_flipping_bytes(display_array1, display_array2, "new_nano_flipping_1_2")
 
-    y_list = list(range(0,150)) + list(range(150, 250, 2))
+    """y_list = list(range(0,150)) + list(range(150, 250, 2))
     y_list = list(set(y_list))
-    y_list.sort()
+    y_list.sort()"""
 
     """for i in y_list:
         sram_read_y(filename=f"./Sy_test/test_y_{i}", rounds=25, y=i)"""
 
-    #Get flipping bits
+    """#Get flipping bits
     a = np.load("./Sy_test/test_y_0.npy", allow_pickle=True)[1:]
     b = np.load("./Sy_test/test_y_230.npy", allow_pickle=True)[1:]
     prob1, length1 = get_proba_array(a)
@@ -294,5 +295,5 @@ if __name__ == "__main__":
     ax.invert_yaxis()
     ax.set_aspect('equal')
     plt.box(False)
-    plt.show()
+    plt.show()"""
     
