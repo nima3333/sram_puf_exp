@@ -8,6 +8,7 @@ int i = 0;
 int y = 0;
 int compteur = 0;
 unsigned long time;
+int exceptional = 0;
 
 void DAC_control(int value){
   // 143us
@@ -53,7 +54,34 @@ void DAC_combination(int y, int a, int b){
   DAC_control(4095);
 }
 
-void setup() {
+void DAC_S64(){
+  for(int i=0; i<4096; i += 9){
+    DAC_control(i);
+  }
+  DAC_control(4095);
+}
+
+void DAC_S1024(){
+  for(int i=0; i<4096; i += 1){
+    DAC_control(i);
+    delayMicroseconds(107);
+  }
+  DAC_control(4095);
+}
+
+void setup(){
+  Serial.begin(115200);
+  Wire.begin();
+  Wire.setClock(400000);
+  DAC_control(0);
+  }
+
+void loop() {
+  DAC_S1024();
+  DAC_control(0);
+}
+
+void setup2() {
   Serial.begin(115200);
   Wire.begin();
   Wire.setClock(400000);
@@ -78,14 +106,17 @@ void setup() {
   }
   delay(1000);
   mySerial.begin(38400);
+
   DAC_combination(y, 1, 2);
 }
 
-void loop() {
+void loop2() {
   //DAC_combination(y, 1, 2);
   if (mySerial.available()){
+    
     char inByte = mySerial.read();
-    if(inByte!='X'){
+    if(inByte=='\n') exceptional += 1;
+    if(inByte!='X' && exceptional >= 53){
       Serial.write(inByte);
     }
     else{
@@ -94,10 +125,11 @@ void loop() {
         DAC_control(0);
         Serial.flush();
         if(++compteur == i){
-          for (;;);
-          //asm volatile ("  jmp 0");
+          //for (;;);
+          asm volatile ("  jmp 0");
         }
         delay(1000);
+        exceptional = 0;
         DAC_combination(y, 1, 2);
       }
     }
