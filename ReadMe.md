@@ -1,7 +1,6 @@
 # SRAM PUF POC for Arduinos
 
 TODO :
-- Doc ?
-- Test rising time
-- Test temperature (hehe hop au four l'arduino)
-- Test deux nano différentes (remettre la main sur avrisp)
+Main goal is to find the Sy dynamic auth pattern
+Currently it is not working
+Main suspect is software serial, next step is to use a Mega with multiple hardware serial.
