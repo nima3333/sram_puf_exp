@@ -95,6 +95,7 @@ def sram_read_y(filename : str = "save", port : str = None, rounds : int = 250, 
                     temp_array = []
                     for line in lines:
                         temps = line.decode(encoding="ascii", errors="ignore")
+                        temps = temps.replace('\x00', '')
                         temps = temps.split(" ")
                         if len(temps)!=17:
                             print(temps)
