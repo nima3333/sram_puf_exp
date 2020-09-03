@@ -69,6 +69,18 @@ void DAC_S1024(){
   DAC_control(4095);
 }
 
+void DAC_Sy(int y){
+  for(int i=0; i<y; i += 1){
+    DAC_control(i);
+    delayMicroseconds(107);
+  }
+  for(int i=y; i<4096; i += 9){
+    DAC_control(i);
+  }
+  DAC_control(4095);
+}
+
+
 void setup(){
   Serial.begin(115200);
   Wire.begin();
@@ -77,7 +89,7 @@ void setup(){
   }
 
 void loop() {
-  DAC_S1024();
+  DAC_Sy(4095);
   DAC_control(0);
 }
 
