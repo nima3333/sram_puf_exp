@@ -221,25 +221,23 @@ def get_displayed_array(prob: np.ndarray, binary: np.ndarray, length: int) -> np
     return np.array(array)
 
 if __name__ == "__main__":
-    sram_read_y('test_oscillo', rounds=100, y=4095)
-    #sram_read_new("new_nano_2", rounds=50)
     """a = np.load("./new_nano_1.npy", allow_pickle=True)[1:]
     prob1, length1 = get_proba_array(a)
     display_array1 = get_displayed_array(prob1, a, length1)
 
     b = np.load("./new_nano_2.npy", allow_pickle=True)[1:]
     prob2, length2 = get_proba_array(b)
-    display_array2 = get_displayed_array(prob2, b, length2)"""
+    display_array2 = get_displayed_array(prob2, b, length2)
+    compare_arrays_flipping_bytes(display_array1, display_array2, "new_nano_flipping_1_2")
+    """
 
-    #compare_arrays_flipping_bytes(display_array1, display_array2, "new_nano_flipping_1_2")
-
-    """y_list = list(range(0,150)) + list(range(150, 250, 2))
+    """    y_list = list(range(0,150)) + list(range(150, 250, 2)) + [1000]
     y_list = list(set(y_list))
-    y_list.sort()"""
+    y_list.sort()
 
-    """for i in y_list:
+    for i in y_list:
         sram_read_y(filename=f"./Sy_test/test_y_{i}", rounds=25, y=i)"""
-
+    sram_read_y(filename=f"./Sy_test/test_y_{4095}", rounds=25, y=4095)
     """#Get flipping bits
     a = np.load("./Sy_test/test_y_0.npy", allow_pickle=True)[1:]
     b = np.load("./Sy_test/test_y_230.npy", allow_pickle=True)[1:]
