@@ -8,7 +8,6 @@ int i = 0;
 int y = 0;
 int compteur = 0;
 unsigned long time;
-int exceptional = 0;
 
 void DAC_control(int value){
   // 143us
@@ -18,40 +17,6 @@ void DAC_control(int value){
   Wire.write(value >> 4);
   Wire.write((value & 15) << 4);
   Wire.endTransmission();
-}
-
-void DAC_rise(int factor){
-  //Correspond to Sx signal
-  //  factor = 1 => 585ms rising time
-  //  x = 585/factor ms
-  
-  int to_add = pow(2, factor-1);
-  for(int i=0; i<4096; i += to_add){
-    DAC_control(i);
-  }
-  DAC_control(4095);
-}
-
-int round_saturate(float y){
-  int result = (int)(y*4095.0);
-  return constrain(result, 0, 4095);
-}
-
-void DAC_combination(int y, int a, int b){
-  //Correspond to Sy signal, combination of two Sx
-  //  from 0 to y : waveform S0
-  //  from y to 1 : waveform S1
-  //  y=1 is 4096
-  int limit = y;
-  int to_add1 = pow(2, a-1);
-  int to_add2 = pow(2, b-1);
-  for(int i=0; i<limit; i+=to_add1){
-    DAC_control(i);
-  }
-  for(int i=limit; i<4096; i+=to_add2){
-    DAC_control(i);
-  }
-  DAC_control(4095);
 }
 
 void DAC_S64(){
@@ -80,20 +45,7 @@ void DAC_Sy(int y){
   DAC_control(4095);
 }
 
-
-void setup(){
-  Serial.begin(115200);
-  Wire.begin();
-  Wire.setClock(400000);
-  DAC_control(0);
-  }
-
-void loop() {
-  DAC_Sy(4095);
-  DAC_control(0);
-}
-
-void setup2() {
+void setup() {
   Serial.begin(115200);
   Wire.begin();
   Wire.setClock(400000);
@@ -119,16 +71,13 @@ void setup2() {
   delay(1000);
   mySerial.begin(38400);
 
-  DAC_combination(y, 1, 2);
+  DAC_Sy(y);
 }
 
-void loop2() {
-  //DAC_combination(y, 1, 2);
+void loop() {
   if (mySerial.available()){
-    
     char inByte = mySerial.read();
-    if(inByte=='\n') exceptional += 1;
-    if(inByte!='X' && exceptional >= 53){
+    if(inByte!='X'){
       Serial.write(inByte);
     }
     else{
@@ -137,12 +86,11 @@ void loop2() {
         DAC_control(0);
         Serial.flush();
         if(++compteur == i){
-          //for (;;);
-          asm volatile ("  jmp 0");
+          for (;;);
+          //asm volatile ("  jmp 0");
         }
         delay(1000);
-        exceptional = 0;
-        DAC_combination(y, 1, 2);
+        DAC_Sy(y);
       }
     }
   }
