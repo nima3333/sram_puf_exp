@@ -1,9 +1,7 @@
-#include <SoftwareSerial.h>
 #include <Wire.h>
 
 #define MCP4725_ADDR 0x60   
 
-SoftwareSerial mySerial(3, 4);
 int i = 0;
 int y = 0;
 int compteur = 0;
@@ -11,7 +9,6 @@ unsigned long time;
 
 void DAC_control(int value){
   // 143us
-  
   Wire.beginTransmission(MCP4725_ADDR);
   Wire.write(64);
   Wire.write(value >> 4);
@@ -37,7 +34,7 @@ void DAC_S1024(){
 void DAC_Sy(int y){
   for(int i=0; i<y; i += 1){
     DAC_control(i);
-    delayMicroseconds(107);
+    delayMicroseconds(130);
   }
   for(int i=y; i<4096; i += 9){
     DAC_control(i);
@@ -68,23 +65,24 @@ void setup() {
     y = Serial.parseInt();
     Serial.read();
   }
-  delay(1000);
-  mySerial.begin(38400);
-
+  delay(500);
+  Serial1.begin(57600);
   DAC_Sy(y);
 }
 
 void loop() {
-  if (mySerial.available()){
-    char inByte = mySerial.read();
+  if (Serial1.available()){
+    char inByte = Serial1.read();
     if(inByte!='X'){
       Serial.write(inByte);
     }
     else{
-      char inByte = mySerial.read();
+      while(!Serial1.available()){}
+      char inByte = Serial1.read();
       if(inByte=='X'){
-        DAC_control(0);
         Serial.flush();
+        Serial1.flush();
+        DAC_control(1);
         if(++compteur == i){
           for (;;);
           //asm volatile ("  jmp 0");
