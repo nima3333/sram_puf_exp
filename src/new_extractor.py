@@ -11,6 +11,7 @@ from PIL import Image
 import io
 import glob
 import re
+import traceback
 
 def get_serial_port() -> str:
 
@@ -18,7 +19,7 @@ def get_serial_port() -> str:
     myport = ""
     print(myports)
     for port in myports:
-        if "Arduino Uno" in port[1]:
+        if "Arduino Uno" in port[1] or "Arduino Mega" in port[1]:
             myport = port[0]
             break
     print(f"Port selectionné : {myport}")
@@ -86,7 +87,7 @@ def sram_read_y(filename : str = "save", port : str = None, rounds : int = 250, 
             for i in range(rounds): 
                 try:
                     ligne = port_serie.readlines()
-                    while(not ligne or (ligne[0] in [b'\x00', b'\r\n']) and len(ligne)<2):
+                    while(not ligne or (ligne[0] in [b'\x00', b'\r\n']) or len(ligne)<2):
                         ligne = port_serie.readlines()
                     print(f"[+] Reading {i} done, checking ... ", end='')
                     lines = ligne[2:]
@@ -110,8 +111,10 @@ def sram_read_y(filename : str = "save", port : str = None, rounds : int = 250, 
                                 temp_array += list(map(lambda x: int(x), '{0:04b}'.format(int(elem[1], 16))))
                     data.append(temp_array)
                     print("Done")
-                except:
+                except Exception as err:
                     print("ERROR")
+                    print(err)
+
 
     np_data = np.array(data)
     print(np_data.shape)
@@ -231,18 +234,18 @@ if __name__ == "__main__":
     display_array2 = get_displayed_array(prob2, b, length2)
     compare_arrays_flipping_bytes(display_array1, display_array2, "new_nano_flipping_1_2")
     """
-
-    y_list = list(range(0,150)) + list(range(150, 250, 2)) + [1000]
+    
+    y_list = list(range(0,150)) + list(range(150, 250, 2)) + list(range(250, 1000, 5)) + [1000, 4095]
     y_list = list(set(y_list))
     y_list.sort()
-
-    """
-    for i in y_list:
-        sram_read_y(filename=f"./Sy_test/test_y_{i}", rounds=25, y=i)"""
-
-    #Get flipping bits
+    
+    
+    for i in list(range(1000, 4095, 10)):
+        sram_read_y(filename=f"./Sy_test/test_y_{i}", rounds=25, y=i)
+    
+    """#Get flipping bits
     a = np.load("./Sy_test/test_y_0.npy", allow_pickle=True)[1:]
-    b = np.load("./Sy_test/test_y_100.npy", allow_pickle=True)[1:]
+    b = np.load("./Sy_test/test_y_4095.npy", allow_pickle=True)[1:]
     prob1, length1 = get_proba_array(a)
     display_array1 = get_displayed_array(prob1, a, length1)
 
@@ -295,5 +298,4 @@ if __name__ == "__main__":
     ax.invert_yaxis()
     ax.set_aspect('equal')
     plt.box(False)
-    plt.show()
-    
+    plt.show()"""
