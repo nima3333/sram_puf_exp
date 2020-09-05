@@ -235,15 +235,15 @@ if __name__ == "__main__":
     compare_arrays_flipping_bytes(display_array1, display_array2, "new_nano_flipping_1_2")
     """
     
-    y_list = list(range(0,150)) + list(range(150, 250, 2)) + list(range(250, 1000, 5)) + [1000, 4095]
+    """ y_list = list(range(0,150)) + list(range(150, 250, 2)) + list(range(250, 1000, 5)) + list(range(1000, 4095, 10)) + [1000, 4095]
     y_list = list(set(y_list))
     y_list.sort()
     
     
-    for i in list(range(1000, 4095, 10)):
+    for i in list(range(2300, 4095, 50)):
         sram_read_y(filename=f"./Sy_test/test_y_{i}", rounds=25, y=i)
-    
-    """#Get flipping bits
+    """
+    #Get flipping bits
     a = np.load("./Sy_test/test_y_0.npy", allow_pickle=True)[1:]
     b = np.load("./Sy_test/test_y_4095.npy", allow_pickle=True)[1:]
     prob1, length1 = get_proba_array(a)
@@ -287,7 +287,7 @@ if __name__ == "__main__":
             print(e)
 
     #Custom colormap
-    cmap = colors.ListedColormap(['green', 'yellow', "white", "red"])
+    cmap = colors.ListedColormap(['green', 'orange', "white", "red"])
     bounds=[0,0.5,1.5,2.5,3.5]
     norm = colors.BoundaryNorm(bounds, cmap.N)
 
@@ -298,4 +298,4 @@ if __name__ == "__main__":
     ax.invert_yaxis()
     ax.set_aspect('equal')
     plt.box(False)
-    plt.show()"""
+    plt.show()
