@@ -293,9 +293,11 @@ if __name__ == "__main__":
 
     fig = plt.figure(figsize=(20,20))
     plt.pcolormesh(matrix[:,:], edgecolors='k', linewidth=0, cmap=cmap, norm=norm)
-    plt.axis('off')
+    #plt.axis('off')
     ax = plt.gca()
     ax.invert_yaxis()
     ax.set_aspect('equal')
+    ax.set_xticks(np.arange(len(new_y_list), step=5) + 0.5, minor=False)
+    ax.set_xticklabels(new_y_list[::5],rotation=90)
     plt.box(False)
     plt.show()
