@@ -1,2 +1,2 @@
-# SRAM PUF POC for Arduinos
+# SRAM PUF Experiment for Arduinos
 
